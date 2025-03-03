@@ -2,6 +2,7 @@
 #include "plant.h"
 #include <SD.h>
 
+
 plant::plant(String planttype, float optimal_humidity, const int arduino_sensor_pin, const int arduino_motor_pin)
 {
     this->planttype = planttype;
@@ -47,13 +48,13 @@ void plant::write_to_SDcard(const int PIN_SPI_CS, bool init)
         }
         else
         {
-            Serial.print(F("SD Card: error on opening file"));
+            Serial.print(F("SD Card: error on opening file.\n"));
         }
     }
 }
 
 //writing the data to the SD card as CSV
-void plant::write_to_SDcard(const int PIN_SPI_CS, const int measurment_frequency)
+void plant::write_to_SDcard(const int PIN_SPI_CS, unsigned long measurment_frequency)
 {
     file = SD.open((this->planttype + "log.csv"), FILE_WRITE);
     if (this->last_data_write - millis() < measurment_frequency)
@@ -64,11 +65,10 @@ void plant::write_to_SDcard(const int PIN_SPI_CS, const int measurment_frequency
     if (file) 
     {
         file.println ((millis() + ", " +  this->planttype + ", " + this->optimal_humidity + ", " + this->humidity + "\n"));
-        file.println();
         file.close();
     }
     else
     {
-        Serial.print(F("SD Card: error on opening file"));
+        Serial.print(F("SD Card: error on opening file. \n"));
     }
 }

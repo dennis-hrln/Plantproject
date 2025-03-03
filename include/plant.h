@@ -2,6 +2,7 @@
 #define PLANT_H
 
 #include <Arduino.h>
+#include <SD.h>
 
 class plant
 {
@@ -19,10 +20,11 @@ class plant
     void watering(float,int);
     float measure_humidity();
     void write_to_SDcard(const int,bool);
-    void write_to_SDcard(const int, const int);
+    void write_to_SDcard(const int, unsigned long = 60000);
 
     private:
-    unnsigned long last_data_write;
+    File file;
+    unsigned long last_data_write;
 
 };
 
