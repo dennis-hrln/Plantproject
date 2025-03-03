@@ -18,7 +18,11 @@ class plant
 
     void watering(float,int);
     float measure_humidity();
+    void write_to_SDcard(const int,bool);
+    void write_to_SDcard(const int, const int);
 
+    private:
+    unnsigned long last_data_write;
 
 };
 
