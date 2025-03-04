@@ -13,15 +13,22 @@ plant::plant(String planttype, float optimal_humidity, const int arduino_sensor_
     this->last_watered = 0;
     this->sensor_wet = 1023;
     this->sensor_dry = 0;
-
+    
     // this->measure_humidity = Funktion;
 };
+
+// set the values for the wet and dry sensor values
+void plant::calibrate_humidity_sensor(int wet, int dry)
+{
+    this->sensor_wet = wet;
+    this->sensor_dry = dry;
+}
 
 void plant::calibrate_humidity_sensor()
 {
     Serial.println("Take the sensor out of the soil, dry it and wait for 30 seconds");
     //gets the lowest value 
-    for (int i = 0; i < 30e3;i++)
+    for (int i = 0; i < 30e4;i++)
     {
         if (this->sensor_dry < analogRead(this->sensor_pin))
         {
@@ -31,7 +38,7 @@ void plant::calibrate_humidity_sensor()
         Serial.println(analogRead(this->sensor_pin));
     }
     Serial.println("Now put the sensor in water and wait am minute ");
-    for (int i = 0; i < 60e3;i++)
+    for (int i = 0; i < 60e4;i++)
     {
         Serial.println(analogRead(this->sensor_pin));
         if (this->sensor_wet > analogRead(this->sensor_pin))
@@ -63,14 +70,14 @@ void plant::watering(float humidity_difference, int water_amount = 50) // water_
     {
         if (millis() - this->last_watered > 20000)
         {
-            Serial.println("watering");
-            digitalWrite(motor_pin, HIGH);
+            digitalWrite(this->motor_pin, HIGH);
             delay(100 * water_amount);
-            digitalWrite(motor_pin, LOW);
+            digitalWrite(this->motor_pin, LOW);
             this->last_watered = millis();
             this->last_data_write = 0;
             this->watered = true;
             write_to_SDcard(this->SD_card_pin);
+            write_to_pc();
             this->watered = false;
         }
     }
@@ -86,7 +93,8 @@ void plant::write_to_SDcard(unsigned long measurment_frequency)
 
     if (!SD.begin(this->SD_card_pin))
     {
-        Serial.println(F("SD Card initialization failed!"));
+        //error message
+        //Serial.println(F("SD Card initialization failed!"));
         return;
     }
 
@@ -110,7 +118,9 @@ void plant::write_to_SDcard(unsigned long measurment_frequency)
         }
         else
         {
-            Serial.print(F("SD Card: error on opening file.\n"));
+            //error message
+            //Serial.println(F("SD Card initialization failed!"));
+            //Serial.print(F("SD Card: error on opening file.\n"));
         }
     }
 
@@ -125,13 +135,38 @@ void plant::write_to_SDcard(unsigned long measurment_frequency)
         {
             // print the data to the file in csv format
 
-            file.println((String(millis()) + ", " + this->planttype + ", " + String(this->optimal_humidity) + ", " + String(this->humidity) + ", " + String(this->watered) + "\n"));
+            file.println((String(millis()) + ", " + this->planttype + ", " + String(this->optimal_humidity) + ", " + String(this->humidity) + ", " + String(this->watered)));
             this->last_data_write = millis();
         }
         else
         {
-            Serial.print(F("SD Card: error on opening file. \n"));
+            //error message
+            //Serial.println(F("SD Card initialization failed!"));
+            //Serial.print(F("SD Card: error on opening file. \n"));
         }
     }
     file.close();
+}
+
+void plant::write_to_pc(unsigned long measurment_frequency)
+{
+    static bool initiation = true;
+    
+    if (initiation)
+    {
+
+        Serial.println(F("runtime[ms], planttype, optimal_humidity, humidity, watered"));
+        initiation = false;
+    }
+
+    else
+    {
+        if (millis() - this->last_data_write < measurment_frequency)
+        {
+            return;
+        }
+        Serial.println((String(millis()) + ", " + this->planttype + ", " + String(this->optimal_humidity) + ", " + String(this->humidity) + ", " + String(this->watered) ));
+        this->last_data_write = millis();
+    }
+
 }

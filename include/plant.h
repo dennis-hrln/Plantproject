@@ -14,19 +14,20 @@ public:
     float humidity;
     float humidity_difference;
 
+    void calibrate_humidity_sensor();
+    void calibrate_humidity_sensor(int, int);
     void watering(float, int);
     float measure_humidity();
     void write_to_SDcard(unsigned long = 60000);
-    void calibrate_humidity_sensor();
-
-private:
+    void write_to_pc(unsigned long measurmentu_freqency = 2e4);
     int sensor_pin;
     int motor_pin;
     int SD_card_pin;
+
+private:
     File file;
     unsigned long last_data_write;
-    const String data_names[5] = {"time", "planttype", "optimal_humidity", "humidity", "watered"};
-    ;
+    const String data_names[5] = {"runtime[ms]", "planttype", "optimal_humidity", "humidity", "watered"};
     unsigned long last_watered;
     bool watered;
     int sensor_wet;
