@@ -7,10 +7,8 @@
 void humidity_control(plant *);
 unsigned long data_frequency = 500;
 int update_time = 1000; // time in ms between updates: how long the arduino waits bewteen loops
-int wet_sensor_value = 198;
-int dry_sensor_value = 570;
-
-
+int wet_sensor_value = 186;
+int dry_sensor_value = 513;
 
 void setup()
 {
@@ -18,15 +16,13 @@ void setup()
   Serial.begin(9600);
   Serial.println("Starting up");
 
-  //Set pinmodes
+  // Set pinmodes
   pinMode(Zimmerpflanze.sensor_pin, INPUT);
   pinMode(Zimmerpflanze.motor_pin, OUTPUT);
   pinMode(Zimmerpflanze.SD_card_pin, OUTPUT);
 
   // to calibrate the sensor remove the two int in the function
-  Zimmerpflanze.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
-  
-  
+  Zimmerpflanze.calibrate_humidity_sensor(wet_sensor_value,dry_sensor_value);
 }
 
 void loop()
@@ -35,7 +31,6 @@ void loop()
   humidity_control(&Zimmerpflanze);
   delay(update_time);
   Zimmerpflanze.write_to_pc(data_frequency);
-  
 }
 
 void humidity_control(plant *Pflanze)
@@ -44,12 +39,12 @@ void humidity_control(plant *Pflanze)
   if (h_diff > 0)
   {
     Pflanze->watering(h_diff, 25);
-    //Serial.println("The humidity is ");
-    //Serial.println(Pflanze->humidity);
+    // Serial.println("The humidity is ");
+    // Serial.println(Pflanze->humidity);
   }
   else
   {
-    //Serial.println("The humidity is ");
-    //Serial.println(Pflanze->humidity);
+    // Serial.println("The humidity is ");
+    // Serial.println(Pflanze->humidity);
   }
 }
