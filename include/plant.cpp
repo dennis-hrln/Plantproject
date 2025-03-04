@@ -169,7 +169,7 @@ void plant::write_to_pc(unsigned long measurment_frequency)
         {
             return;
         }
-        Serial.println((String(millis()) + ", " + this->planttype + ", " + String(this->optimal_humidity) + ", " + String(this->humidity) + ", " + String(this->watered)));
+        Serial.println((String(millis()/1000) + ", " + this->planttype + ", " + String(this->optimal_humidity) + ", " + String(this->humidity) + ", " + String(this->watered)));
         this->last_data_write = millis();
     }
 }
