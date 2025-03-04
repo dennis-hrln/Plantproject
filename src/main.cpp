@@ -13,6 +13,7 @@ void setup()
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
   Serial.println("Starting up");
+  Zimmerpflanze.calibrate_humidity_sensor();
 }
 
 void loop()

@@ -7,7 +7,7 @@
 class plant
 {
 public:
-    plant(String planttype, float optimal_humidity = 25, const int sensor_pin = NULL, const int motor_pin = LED_BUILTIN, const int SD_card_pin = NULL);
+    plant(String planttype, float optimal_humidity = 25, const int sensor_pin = 0, const int motor_pin = LED_BUILTIN, const int SD_card_pin = 0);
 
     String planttype;
     float optimal_humidity;
@@ -17,6 +17,7 @@ public:
     void watering(float, int);
     float measure_humidity();
     void write_to_SDcard(unsigned long = 60000);
+    void calibrate_humidity_sensor();
 
 private:
     int sensor_pin;
@@ -28,6 +29,8 @@ private:
     ;
     unsigned long last_watered;
     bool watered;
+    int sensor_wet;
+    int sensor_dry;
 };
 
 #endif // PLANT_H

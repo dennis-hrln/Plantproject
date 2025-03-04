@@ -10,25 +10,60 @@ plant::plant(String planttype, float optimal_humidity, const int arduino_sensor_
     this->motor_pin = arduino_motor_pin;
     this->last_data_write = 0; // initialize the last data write time to 0
     this->SD_card_pin = arduino_SD_card_pin;
+    this->last_watered = 0;
+    this->sensor_wet = 1023;
+    this->sensor_dry = 0;
 
     // this->measure_humidity = Funktion;
+};
+
+void plant::calibrate_humidity_sensor()
+{
+    Serial.println("Take the sensor out of the soil, dry it and wait for 30 seconds");
+    //gets the lowest value 
+    for (int i = 0; i < 30e3;i++)
+    {
+        if (this->sensor_dry < analogRead(this->sensor_pin))
+        {
+            this->sensor_dry = analogRead(this->sensor_pin);
+            delay(10);
+        }
+        Serial.println(analogRead(this->sensor_pin));
+    }
+    Serial.println("Now put the sensor in water and wait am minute ");
+    for (int i = 0; i < 60e3;i++)
+    {
+        Serial.println(analogRead(this->sensor_pin));
+        if (this->sensor_wet > analogRead(this->sensor_pin))
+        {
+            this->sensor_wet = analogRead(this->sensor_pin);
+            delay(10);
+        }
+    }
+    // calibrate the sensor
+    Serial.println("Calibration done");
+    Serial.print("Sensor dry value: ");
+    Serial.println(this->sensor_dry);
+    Serial.print("Sensor wet value: ");
+    Serial.println(this->sensor_wet);
 };
 
 float plant::measure_humidity()
 {
     int humidity_sensor_Value = analogRead(this->sensor_pin);
-    this->humidity = map(humidity_sensor_Value, 0, 1023, 0, 100);
+    this->humidity = map(humidity_sensor_Value, this->sensor_wet, this->sensor_dry, 100, 0);
     humidity_difference = this->optimal_humidity - this->humidity;
 
     return humidity_difference;
 };
 
-void plant::watering(float humidity_difference, int water_amount = 30) // water_amount is an example value
+void plant::watering(float humidity_difference, int water_amount = 50) // water_amount is an example value
 {
     if (humidity_difference > 0)
     {
         if (millis() - this->last_watered > 20000)
         {
+            Serial.println("watering");
             digitalWrite(motor_pin, HIGH);
             delay(100 * water_amount);
             digitalWrite(motor_pin, LOW);
@@ -65,7 +100,7 @@ void plant::write_to_SDcard(unsigned long measurment_frequency)
         if (file)
         {
             // print the names of the data to the file in csv format
-            for (int i = 0; i < sizeof(data_names) / sizeof(data_names[0]); i++)
+            for (int i = 0; i < static_cast<int>(sizeof(data_names) / sizeof(data_names[0])); i++)
             {
                 file.print(this->data_names[i]);
                 file.print(F(", "));
