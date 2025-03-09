@@ -159,7 +159,7 @@ void plant::write_to_pc(unsigned long measurment_frequency)
     if (initiation)
     {
 
-        Serial.println(F("runtime[ms], planttype, optimal_humidity, humidity, watered"));
+        Serial.println(F("runtime[s], planttype, optimal_humidity, humidity, watered"));
         initiation = false;
     }
 

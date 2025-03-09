@@ -5,8 +5,10 @@
 #include <SD.h>
 
 void humidity_control(plant *);
-unsigned long data_frequency = 15000;
-int update_time = 30000; // time in ms between updates: how long the arduino waits bewteen loops
+unsigned long data_frequency = 5000;
+int update_time = 10000; // time in ms between updates: how long the arduino waits bewteen loops
+
+
 int wet_sensor_value = 186;
 int dry_sensor_value = 513;
 
@@ -37,7 +39,7 @@ void humidity_control(plant *Pflanze)
   float h_diff = Pflanze->measure_humidity();
   if (h_diff > 0)
   {
-    Pflanze->watering(h_diff, 25);
+    Pflanze->watering(h_diff, 100);
     // Serial.println("The humidity is ");
     // Serial.println(Pflanze->humidity);
   }
