@@ -64,7 +64,7 @@ if __name__ == "__main__":
         sleep(5)
         print("press control + c to stop the programm")
         remove_old_file('sensor_data.csv')
-        read_serial_data(ser)
+        #read_serial_data(ser)
     except KeyboardInterrupt:
         filename = 'sensor_data.csv'
         times, humidities = read_csv_data(filename)

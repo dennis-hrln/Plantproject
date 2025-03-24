@@ -27,7 +27,7 @@ void plant::calibrate_humidity_sensor(int wet, int dry)
 void plant::calibrate_humidity_sensor()
 {
     int calibrating_time = 30 * 1000; // time for the calibration in ms
-    Serial.println("Take the sensor out of the soil, dry it and wait for" + String(calibrating_time / 1000) + " seconds");
+    Serial.println("Take the sensor out of the soil, dry it and wait for " + String(calibrating_time / 1000) + " seconds.");
     // gets the lowest value
     unsigned long startime = millis();
     while (startime + calibrating_time > millis())
@@ -41,7 +41,7 @@ void plant::calibrate_humidity_sensor()
         // Serial.println(analogRead(this->sensor_pin));
     }
     startime = millis();
-    Serial.println("Now put the sensor in water and wait for" + String(calibrating_time / 1000) + " seconds");
+    Serial.println("Now put the sensor in water and wait for " + String(calibrating_time / 1000) + " seconds.");
     while (startime + calibrating_time > millis())
     {
         // Serial.println(analogRead(this->sensor_pin));
