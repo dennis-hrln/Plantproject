@@ -10,16 +10,23 @@ class screen
 
     public:
     screen(LiquidCrystal_I2C* LCD);
-    void innit();
-    void home_disp();
-    void water_disp();
+    LiquidCrystal_I2C* lcd;
+    
+    void home_disp(String plantname, int humidity, int optimal_humidity);   // Display humidity /optimal humdiity
+    void water_disp();      // Display the last time the plant was watered
     void calibration_disp();
-    unsigned long stay_awake_time = 25 * 1000;  // 15 seconds
-
+    unsigned long stay_awake_time = 40 * 1000;  // 40 seconds
+    void screen_dimming();  // Turns off the backlight after a certain time
+    void innit();
+    unsigned long last_disp_action = 0;
+    String disp_status;
+    //todo if buttin pushed : last_disp_activation = millis();
+    //disp.home
+    // - add to every button function
 
     private:
     //Custom characters
-    void screen_dimming();
+    
     byte right_arrow[8] = {
         0b00000,
         0b00000,
