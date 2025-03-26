@@ -17,7 +17,11 @@ void screen::innit()
     lcd->setCursor(0, 1);
     lcd->print("dennis_hrln");
     delay(2000);
-    lcd->clear();
+    // lcd->createChar(1, left_arrow);
+    // lcd->createChar(2, right_arrow);
+    // lcd->createChar(3, down_arrow);
+    // lcd->createChar(4, up_arrow);
+    lcd->createChar(0, select_char);
     this->disp_status = "startup";
 
 };
@@ -26,6 +30,7 @@ void screen::screen_dimming()
     if (millis() - this->last_disp_action > this->stay_awake_time)
     {
         lcd->noBacklight();
+        this->lit = false;
     }
 };
 
@@ -37,11 +42,15 @@ void screen::home_disp(String plantname, int humidity, int optimal_humidity)
     lcd->setCursor(0, 0);
     lcd->print(plantname);
     lcd->setCursor(0, 1);
-    lcd->print("Hum. " + String(humidity) + "% / " + String(optimal_humidity) + "%");
+    lcd->print("Hum. ");
+    lcd->print(humidity);
+    lcd->print("% / ");
+    lcd->print(optimal_humidity);
+    lcd->print("%");
     last_disp_change = millis();
 };
 
-void screen::water_disp()
+void screen::water_disp(unsigned long last_watered)
 {
     this->disp_status = "water_disp";
     lcd->clear();
@@ -49,7 +58,33 @@ void screen::water_disp()
     lcd->setCursor(0, 0);
     lcd->print("Last watered:");
     lcd->setCursor(0, 1);
-    lcd->print(String(millis() / 1000) + "s");
+    lcd->print(String(last_watered / 1000));
+    lcd->print("s");
     //todo replace milis with time from time module
+    last_disp_change = millis();
+};
+
+void screen::calibration_disp()
+{
+    lcd->clear();
+    lcd->backlight();
+    lcd->setCursor(0, 0);
+    lcd->print("calibrate dry");
+    lcd->setCursor(0, 1);
+    lcd->print("calibrate wet");
+    if (this->disp_status == "wet_calibration")
+    {
+        lcd->setCursor(15, 1);
+        lcd->write(0);
+        Serial.println("wet");
+    }
+    else
+    {
+        lcd->setCursor(15, 0);
+        lcd->write(0);
+        this->disp_status = "dry_calibration";
+        Serial.println("dry");
+        
+    }
     last_disp_change = millis();
 };
