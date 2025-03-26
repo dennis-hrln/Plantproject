@@ -10,7 +10,7 @@ plant::plant(String planttype, int optimal_humidity, const int arduino_sensor_pi
     this->motor_pin = arduino_motor_pin;
     this->last_data_write = 0; // initialize the last data write time to 0
     this->SD_card_pin = arduino_SD_card_pin;
-    this->last_watered = 0;
+    this->last_watered;
     this->sensor_wet = 1023;
     this->sensor_dry = 0;
 
@@ -24,7 +24,7 @@ void plant::calibrate_humidity_sensor(int wet, int dry)
     this->sensor_dry = dry;
 }
 
-void plant::calibrate_humidity_sensor()
+void plant::humidity_sensor_dry_calibration()
 {
     int calibrating_time = 30 * 1000; // time for the calibration in ms
     Serial.println("Take the sensor out of the soil, dry it and wait for " + String(calibrating_time / 1000) + " seconds.");
@@ -40,7 +40,11 @@ void plant::calibrate_humidity_sensor()
         }
         // Serial.println(analogRead(this->sensor_pin));
     }
-    startime = millis();
+};
+void plant::humidity_sensor_wet_calibration()
+{
+    int calibrating_time = 30 * 1000; // time for the calibration in ms
+    unsigned long startime = millis();
     Serial.println("Now put the sensor in water and wait for " + String(calibrating_time / 1000) + " seconds.");
     while (startime + calibrating_time > millis())
     {
@@ -52,11 +56,6 @@ void plant::calibrate_humidity_sensor()
         }
     }
     // calibrate the sensor
-    Serial.println("Calibration done");
-    Serial.print("Sensor dry value: ");
-    Serial.println(this->sensor_dry);
-    Serial.print("Sensor wet value: ");
-    Serial.println(this->sensor_wet);
 };
 
 int plant::measure_humidity()
@@ -169,7 +168,16 @@ void plant::write_to_pc(unsigned long measurment_frequency)
         {
             return;
         }
-        Serial.println((String(millis()/1000) + ", " + this->planttype + ", " + String(this->optimal_humidity) + ", " + String(this->humidity) + ", " + String(this->watered)));
+        Serial.println();
+        Serial.print(millis()/1000);
+        Serial.print(F(", "));
+        Serial.print(this->planttype );
+        Serial.print(F(", "));
+        Serial.print(this->optimal_humidity);
+        Serial.print(F(", "));
+        Serial.print(this->humidity);
+        Serial.print(F(", "));
+        Serial.print(this->watered);
         this->last_data_write = millis();
     }
 }
