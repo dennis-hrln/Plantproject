@@ -1,12 +1,12 @@
 #include "plant.h"
 
-//Zimmerpflanze
-const int moisturmeterPnin_zimmerpflanze = A0;  // Moisture sensor pin A0 is an example value
-const int motorPin_zimmerpflanze = 8;           // Motor pin 8 is an example value
-const int SD_card_pin_zimmerpflanze = 4; // SD card pin 4 is an example value
+//stirps
+const int moisturmeterPnin_stirps = A0;  // Moisture sensor pin A0 is an example value
+const int motorPin_stirps = 8;           // Motor pin 8 is an example value
+const int SD_card_pin_stirps = 4; // SD card pin 4 is an example value
 
-plant Zimmerpflanze("Zimmerpflanze", 30.0f, moisturmeterPnin_zimmerpflanze,
-     motorPin_zimmerpflanze, SD_card_pin_zimmerpflanze);
+plant Stirps("Stirps", 30.0f, moisturmeterPnin_stirps,
+     motorPin_stirps, SD_card_pin_stirps);
 
 
 //Kaktuss

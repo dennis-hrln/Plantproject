@@ -26,12 +26,12 @@ bool wet_calibrated = true;
 void check_next_button()
 {
   next_button_pressed = true;
-  Serial.println("next button pressed");
+  Serial.println(F("next button pressed"));
   
 }
 void check_select_button()
 {
-  Serial.println("select button pressed");
+  Serial.println(F("select button pressed"));
   select_button_pressed = true;
 }
 
@@ -45,26 +45,26 @@ void setup()
 
   lcd_screen.innit();
   // Set pinmodes
-  pinMode(Zimmerpflanze.sensor_pin, INPUT);
-  pinMode(Zimmerpflanze.motor_pin, OUTPUT);
-  pinMode(Zimmerpflanze.SD_card_pin, OUTPUT);
+  pinMode(Stirps.sensor_pin, INPUT);
+  pinMode(Stirps.motor_pin, OUTPUT);
+  pinMode(Stirps.SD_card_pin, OUTPUT);
   pinMode(nextButtonPIN, INPUT_PULLUP);
   pinMode(selectButtonPIN, INPUT_PULLUP);
 
   attachInterrupt(digitalPinToInterrupt(nextButtonPIN), check_next_button, RISING);
   attachInterrupt(digitalPinToInterrupt(selectButtonPIN), check_select_button, RISING);
   // to calibrate the sensor remove the two int in the function
-  Zimmerpflanze.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
+  Stirps.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
 }
 
 void loop()
 {
   lcd_screen.screen_dimming();
 
-  Zimmerpflanze.write_to_SDcard(data_frequency);
-  humidity_control(&Zimmerpflanze);
+  Stirps.write_to_SDcard(data_frequency);
+  humidity_control(&Stirps);
   // screen_loop(15000, 10000, 45000);
-  Zimmerpflanze.write_to_pc(data_frequency);
+  Stirps.write_to_pc(data_frequency);
   calibration();
   if (next_button_pressed)
   {
@@ -74,7 +74,7 @@ void loop()
   {
     select_button();
   }
-  lcd_screen.update_screen(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity, Zimmerpflanze.last_watered);;
+  lcd_screen.update_screen(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity, Stirps.last_watered);;
   // delay(1000);
 }
 
@@ -87,26 +87,7 @@ void humidity_control(plant *Pflanze)
   }
 }
 
-// void screen_loop(unsigned long looping_time_home = 15 * 1000, unsigned long looping_time_watering = 10 * 1000, unsigned long max_page_time = 45 * 1000) // time in ms between updates: how long the arduino waits bewteen loops
-// {
-//   if ((millis() - lcd_screen.last_disp_change > looping_time_home) && (lcd_screen.disp_status == "home"))
 
-//   {
-//     lcd_screen.water_disp(Zimmerpflanze.last_watered);
-//   }
-//   else if ((millis() - lcd_screen.last_disp_change > looping_time_watering) && (lcd_screen.disp_status == "water_disp"))
-//   {
-//     lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
-//   }
-//   else if (lcd_screen.disp_status == "startup")
-//   {
-//     lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
-//   }
-//   else if ((millis() - lcd_screen.last_disp_change > max_page_time))
-//   {
-//     lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
-//   }
-// }
 
 void calibration()
 {
@@ -117,10 +98,10 @@ void calibration()
     lcd_screen.lcd->print("Dry calibration");
     lcd_screen.lcd->setCursor(0, 1);
     lcd_screen.lcd->print("wait 30s");
-    Zimmerpflanze.humidity_sensor_dry_calibration();
+    Stirps.humidity_sensor_dry_calibration();
     dry_calibrated = true;
     lcd_screen.lcd->clear();
-    lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
+    lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
   }
   if (wet_calibrated == false)
   {
@@ -129,10 +110,10 @@ void calibration()
     lcd_screen.lcd->print("Wet calibration");
     lcd_screen.lcd->setCursor(0, 1);
     lcd_screen.lcd->print("wait 30s");
-    Zimmerpflanze.humidity_sensor_wet_calibration();
+    Stirps.humidity_sensor_wet_calibration();
     wet_calibrated = true;
     lcd_screen.lcd->clear();
-    lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
+    lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
   }
 }
 
@@ -142,15 +123,12 @@ void next_button()
   {
     lcd_screen.last_disp_action = millis();
 
-    if (lcd_screen.lit == false)
-    {
       lcd_screen.lcd->backlight();
       lcd_screen.lit = true;
-    }
 
     if (lcd_screen.disp_status == "home")
     {
-      lcd_screen.water_disp(Zimmerpflanze.last_watered);
+      lcd_screen.water_disp(Stirps.last_watered);
     }
     else if (lcd_screen.disp_status == "water_disp")
     {
@@ -163,15 +141,16 @@ void next_button()
     }
     else if (lcd_screen.disp_status == "wet_calibration")
     {
-      lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
+      lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
     }
     else
     {
       lcd_screen.lcd->clear();
       lcd_screen.lcd->setCursor(0, 0);
       lcd_screen.lcd->print("startup");
+      lcd_screen.disp_status = "home";
       delay(2000);
-      lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
+      lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
     }
   }
   next_button_pressed = false;
@@ -184,11 +163,9 @@ void select_button()
   {
     lcd_screen.last_disp_action = millis();
 
-    if (lcd_screen.lit == false)
-    {
       lcd_screen.lcd->backlight();
       lcd_screen.lit = true;
-    }
+    
 
     if (lcd_screen.disp_status == "dry_calibration")
     {

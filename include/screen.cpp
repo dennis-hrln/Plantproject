@@ -38,6 +38,10 @@ void screen::home_disp(String plantname, int humidity, int optimal_humidity)
 {
     this->disp_status = "home";
     lcd->clear();
+    if (this->lit == true)
+    {
+        lcd->backlight();
+    }
     lcd->backlight();
     lcd->setCursor(0, 0);
     lcd->print(plantname);
@@ -54,11 +58,14 @@ void screen::water_disp(unsigned long last_watered)
 {
     this->disp_status = "water_disp";
     lcd->clear();
-    lcd->backlight();
+    if (this->lit == true)
+    {
+        lcd->backlight();
+    }
     lcd->setCursor(0, 0);
     lcd->print("Last watered:");
     lcd->setCursor(0, 1);
-    lcd->print(String(last_watered / 1000));
+    lcd->print(last_watered / 1000);
     lcd->print("s");
     //todo replace milis with time from time module
     last_disp_change = millis();
@@ -67,7 +74,10 @@ void screen::water_disp(unsigned long last_watered)
 void screen::calibration_disp()
 {
     lcd->clear();
-    lcd->backlight();
+    if (this->lit == true)
+    {
+        lcd->backlight();
+    }
     lcd->setCursor(0, 0);
     lcd->print("calibrate dry");
     lcd->setCursor(0, 1);

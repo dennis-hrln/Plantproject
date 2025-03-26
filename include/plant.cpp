@@ -10,7 +10,7 @@ plant::plant(String planttype, int optimal_humidity, const int arduino_sensor_pi
     this->motor_pin = arduino_motor_pin;
     this->last_data_write = 0; // initialize the last data write time to 0
     this->SD_card_pin = arduino_SD_card_pin;
-    this->last_watered;
+    this->last_watered = 0;
     this->sensor_wet = 1023;
     this->sensor_dry = 0;
 
