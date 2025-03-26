@@ -14,7 +14,8 @@ public:
     int humidity;
     int humidity_difference;
 
-    void calibrate_humidity_sensor();
+    void humidity_sensor_dry_calibration();
+    void humidity_sensor_wet_calibration();
     void calibrate_humidity_sensor(int, int);
     void watering(float, int);
     int measure_humidity();
@@ -23,13 +24,13 @@ public:
     int sensor_pin;
     int motor_pin;
     int SD_card_pin;
-
+    unsigned long last_watered = 0;
 private:
     File file;
     unsigned long last_data_write;
     const String data_names[5] = {"runtime[s]", "planttype", "optimal_humidity [%]", "humidity[%]", "watered"};
-    unsigned long last_watered;
-    bool watered;
+    
+    bool watered = false;
     int sensor_wet;
     int sensor_dry;
 };
