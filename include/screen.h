@@ -18,6 +18,7 @@ class screen
     unsigned long stay_awake_time = 60 * 1000;  // in ms
     void screen_dimming();  // Turns off the backlight after a certain time
     void innit();
+    void update_screen(String plantname, int humidity, int optimal_humidity, unsigned long last_watered);
     unsigned long last_disp_action = 0;
     String disp_status;
     unsigned long last_disp_change = 0;

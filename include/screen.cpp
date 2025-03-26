@@ -88,3 +88,14 @@ void screen::calibration_disp()
     }
     last_disp_change = millis();
 };
+
+void screen::update_screen(String plantname, int humidity, int optimal_humidity, unsigned long last_watered){
+    if (this->disp_status == "home")
+    {
+        this->home_disp(plantname, humidity, optimal_humidity);
+    }
+    else if (this->disp_status == "water_disp")
+    {
+        this->water_disp(last_watered);
+    }
+}

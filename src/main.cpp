@@ -74,6 +74,7 @@ void loop()
   {
     select_button();
   }
+  lcd_screen.update_screen(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity, Zimmerpflanze.last_watered);;
   // delay(1000);
 }
 
@@ -166,6 +167,10 @@ void next_button()
     }
     else
     {
+      lcd_screen.lcd->clear();
+      lcd_screen.lcd->setCursor(0, 0);
+      lcd_screen.lcd->print("startup");
+      delay(2000);
       lcd_screen.home_disp(Zimmerpflanze.planttype, Zimmerpflanze.humidity, Zimmerpflanze.optimal_humidity);
     }
   }
