@@ -7,9 +7,9 @@
 class plant
 {
 public:
-    plant(String planttype, int optimal_humidity = 25, const int sensor_pin = 0, const int motor_pin = LED_BUILTIN, const int SD_card_pin = 0);
+    plant(const char* planttype, int optimal_humidity = 25, const int sensor_pin = 0, const int motor_pin = LED_BUILTIN, const int SD_card_pin = 0);
 
-    String planttype;
+    const char* planttype;
     int optimal_humidity;
     int humidity;
     int humidity_difference;

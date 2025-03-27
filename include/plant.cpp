@@ -2,7 +2,7 @@
 #include "plant.h"
 #include <SD.h>
 
-plant::plant(String planttype, int optimal_humidity, const int arduino_sensor_pin, const int arduino_motor_pin, const int arduino_SD_card_pin)
+plant::plant(const char* planttype, int optimal_humidity, const int arduino_sensor_pin, const int arduino_motor_pin, const int arduino_SD_card_pin)
 {
     this->planttype = planttype;
     this->optimal_humidity = optimal_humidity;
@@ -101,7 +101,7 @@ void plant::write_to_SDcard(unsigned long measurment_frequency)
         return;
     }
 
-    file = SD.open((this->planttype + "log.csv"), FILE_WRITE);
+    file = SD.open((String(this->planttype) + "log.csv"), FILE_WRITE);
     // if the file is not initialised yet -> titles for csv file (if init == false)
     if (!init)
     {

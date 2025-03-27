@@ -59,7 +59,7 @@ void setup()
 
 void loop()
 {
-  lcd_screen.screen_dimming();
+  lcd_screen.screen_dimming(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
 
   Stirps.write_to_SDcard(data_frequency);
   humidity_control(&Stirps);

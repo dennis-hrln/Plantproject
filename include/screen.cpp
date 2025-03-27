@@ -25,16 +25,17 @@ void screen::innit()
     this->disp_status = "startup";
 
 };
-void screen::screen_dimming()
+void screen::screen_dimming(const char* plantname, int humidity, int optimal_humidity)
 {
     if (millis() - this->last_disp_action > this->stay_awake_time)
     {
         lcd->noBacklight();
         this->lit = false;
+        home_disp(plantname, humidity, optimal_humidity);
     }
 };
 
-void screen::home_disp(String plantname, int humidity, int optimal_humidity)
+void screen::home_disp(const char* plantname, int humidity, int optimal_humidity)
 {
     this->disp_status = "home";
     lcd->clear();
@@ -42,7 +43,6 @@ void screen::home_disp(String plantname, int humidity, int optimal_humidity)
     {
         lcd->backlight();
     }
-    lcd->backlight();
     lcd->setCursor(0, 0);
     lcd->print(plantname);
     lcd->setCursor(0, 1);
@@ -99,7 +99,7 @@ void screen::calibration_disp()
     last_disp_change = millis();
 };
 
-void screen::update_screen(String plantname, int humidity, int optimal_humidity, unsigned long last_watered){
+void screen::update_screen(const char* plantname, int humidity, int optimal_humidity, unsigned long last_watered){
     if (this->disp_status == "home")
     {
         this->home_disp(plantname, humidity, optimal_humidity);
