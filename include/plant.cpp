@@ -26,33 +26,37 @@ void plant::calibrate_humidity_sensor(int wet, int dry)
 
 void plant::humidity_sensor_dry_calibration()
 {
+    this->sensor_dry = 0; // reset the sensor_dry value to 0 before calibration
     int calibrating_time = 30 * 1000; // time for the calibration in ms
-    Serial.println("Take the sensor out of the soil, dry it and wait for " + String(calibrating_time / 1000) + " seconds.");
+    // Serial.println("Take the sensor out of the soil, dry it and wait for " + String(calibrating_time / 1000) + " seconds.");
     // gets the lowest value
     unsigned long startime = millis();
     while (startime + calibrating_time > millis())
     {
-
-        if (this->sensor_dry < analogRead(this->sensor_pin))
+        int hum_val = analogRead(this->sensor_pin);
+        if (this->sensor_dry < hum_val)
         {
-            this->sensor_dry = analogRead(this->sensor_pin);
+            this->sensor_dry = hum_val;
             delay(10);
+            Serial.println(hum_val);
         }
-        // Serial.println(analogRead(this->sensor_pin));
+        
     }
 };
 void plant::humidity_sensor_wet_calibration()
 {
+    this->sensor_wet = 1023; // reset the sensor_wet value to 1023 before calibration
     int calibrating_time = 30 * 1000; // time for the calibration in ms
     unsigned long startime = millis();
-    Serial.println("Now put the sensor in water and wait for " + String(calibrating_time / 1000) + " seconds.");
+    // Serial.println("Now put the sensor in water and wait for " + String(calibrating_time / 1000) + " seconds.");
     while (startime + calibrating_time > millis())
     {
-        // Serial.println(analogRead(this->sensor_pin));
-        if (this->sensor_wet > analogRead(this->sensor_pin))
+        int hum_val = analogRead(this->sensor_pin);
+        if (this->sensor_wet > hum_val)
         {
-            this->sensor_wet = analogRead(this->sensor_pin);
+            this->sensor_wet = hum_val;
             delay(10);
+            Serial.println(hum_val);
         }
     }
     // calibrate the sensor

@@ -26,17 +26,17 @@ bool wet_calibrated = true;
 void check_next_button()
 {
   next_button_pressed = true;
-  Serial.println(F("next button pressed"));
+  // Serial.println(F("next button pressed"));
   
 }
 void check_select_button()
 {
-  Serial.println(F("select button pressed"));
+  // Serial.println(F("select button pressed"));
   select_button_pressed = true;
 }
 
 int wet_sensor_value = 186;
-int dry_sensor_value = 513;
+int dry_sensor_value = 380;
 
 void setup()
 {
@@ -75,7 +75,6 @@ void loop()
     select_button();
   }
   lcd_screen.update_screen(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity, Stirps.last_watered);;
-  // delay(1000);
 }
 
 void humidity_control(plant *Pflanze)
@@ -119,13 +118,10 @@ void calibration()
 
 void next_button()
 {
-  if (digitalRead(nextButtonPIN) == HIGH)
+  lcd_screen.last_disp_action = millis();
+  lcd_screen.lcd->backlight();
+  if (lcd_screen.lit == true)
   {
-    lcd_screen.last_disp_action = millis();
-
-      lcd_screen.lcd->backlight();
-      lcd_screen.lit = true;
-
     if (lcd_screen.disp_status == "home")
     {
       lcd_screen.water_disp(Stirps.last_watered);
@@ -154,19 +150,16 @@ void next_button()
     }
   }
   next_button_pressed = false;
+  lcd_screen.lit = true;
   delay(100);
 }
 
 void select_button()
 {
-  if (digitalRead(selectButtonPIN) == HIGH)
+  lcd_screen.last_disp_action = millis();
+  lcd_screen.lcd->backlight();
+  if (lcd_screen.lit == true)
   {
-    lcd_screen.last_disp_action = millis();
-
-      lcd_screen.lcd->backlight();
-      lcd_screen.lit = true;
-    
-
     if (lcd_screen.disp_status == "dry_calibration")
     {
       dry_calibrated = false;
@@ -176,6 +169,7 @@ void select_button()
       wet_calibrated = false;
     }
   }
+  lcd_screen.lit = true;
   select_button_pressed = false;
   delay(100);
 }

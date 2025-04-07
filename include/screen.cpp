@@ -86,15 +86,12 @@ void screen::calibration_disp()
     {
         lcd->setCursor(15, 1);
         lcd->write(0);
-        Serial.println("wet");
     }
     else
     {
         lcd->setCursor(15, 0);
         lcd->write(0);
-        this->disp_status = "dry_calibration";
-        Serial.println("dry");
-        
+        this->disp_status = "dry_calibration";        
     }
     last_disp_change = millis();
 };
