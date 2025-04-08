@@ -96,6 +96,76 @@ void screen::calibration_disp()
     last_disp_change = millis();
 };
 
+void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second)
+{
+    lcd->clear();
+    if (this->lit == true)
+    {
+        lcd->backlight();
+    }
+    //write date and time
+    lcd->setCursor(0, 0);
+    lcd->print(year);
+    lcd->print("/");
+    lcd->print(month);
+    lcd->print("/");
+    lcd->print(day);
+    lcd->setCursor(0, 1);
+    lcd->print(hour);
+    lcd->print(F(":"));
+    lcd->print(minute);
+    lcd->print(F(":"));
+    lcd->print(second);
+
+    // show what would be edited when pressing the edit button
+    if (this->disp_status == "date_disp")
+    {
+            lcd->setCursor(15,0);
+            lcd->write(0);
+        if (this->disp_status == "edit_year")
+        {
+            lcd->setCursor(1,0);
+            lcd->blink();
+        }
+    else if (this->disp_status == "edit_month")
+        {
+            lcd->setCursor(3, 0);
+            lcd->blink();
+        }
+    else if (this->disp_status == "edit_day")
+        {
+            lcd->setCursor(6, 0);
+            lcd->blink();
+        }
+    }
+    else
+    {
+        this->disp_status = "time_disp";
+        lcd->setCursor(15, 1);
+        lcd->write(0);
+
+        if (this->disp_status == "edit_hour")
+        {
+            lcd->setCursor(9, 0);
+            lcd->blink();
+        }
+        else if (this->disp_status == "edit_minute")
+        {
+            lcd->setCursor(12, 0);
+            lcd->blink();
+        }
+        else if (this->disp_status == "edit_second")
+        {
+            lcd->setCursor(15, 0);
+            lcd->blink();
+        }
+    }
+
+    last_disp_change = millis();
+    
+
+};
+
 void screen::update_screen(const char* plantname, int humidity, int optimal_humidity, unsigned long last_watered){
     if (this->disp_status == "home")
     {

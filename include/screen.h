@@ -15,6 +15,7 @@ class screen
     void home_disp(const char* plantname, int humidity, int optimal_humidity);   // Display humidity /optimal humdiity
     void water_disp(unsigned long);      // Display the last time the plant was watered
     void calibration_disp();
+    void date_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
     unsigned long stay_awake_time = long(60) * long(1000);  // in ms
     void screen_dimming(const char* plantname, int humidity, int optimal_humidity);  // Turns off the backlight after a certain time
     void innit();
