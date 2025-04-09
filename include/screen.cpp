@@ -54,8 +54,9 @@ void screen::home_disp(const char* plantname, int humidity, int optimal_humidity
     last_disp_change = millis();
 };
 
-void screen::water_disp(unsigned long last_watered)
+void screen::water_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute)
 {
+    //logic for last watered into months days hours mins seconds
     this->disp_status = "water_disp";
     lcd->clear();
     if (this->lit == true)
@@ -65,8 +66,15 @@ void screen::water_disp(unsigned long last_watered)
     lcd->setCursor(0, 0);
     lcd->print("Last watered:");
     lcd->setCursor(0, 1);
-    lcd->print(last_watered / 1000);
-    lcd->print("s");
+    lcd->print(day);
+    lcd->print(F("."));
+    lcd->print(month);
+    lcd->print(F("."));
+    lcd->print(year);
+    lcd->print(F(" "));
+    lcd->print(hour);
+    lcd->print(F(":"));
+    lcd->print(minute);
     //todo replace milis with time from time module
     last_disp_change = millis();
 };
@@ -166,13 +174,15 @@ void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, 
 
 };
 
-void screen::update_screen(const char* plantname, int humidity, int optimal_humidity, unsigned long last_watered){
+void screen::update_screen(const char* plantname, int humidity, int optimal_humidity,
+unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute)
+{
     if (this->disp_status == "home")
     {
         this->home_disp(plantname, humidity, optimal_humidity);
     }
     else if (this->disp_status == "water_disp")
     {
-        this->water_disp(last_watered);
+        this->water_disp(year, month, day, hour, minute);
     }
 }

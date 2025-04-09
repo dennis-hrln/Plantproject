@@ -71,7 +71,7 @@ int plant::measure_humidity()
     return humidity_difference;
 };
 
-void plant::watering(float humidity_difference, int water_amount = 50) // water_amount is an example value
+void plant::watering(float humidity_difference, int water_amount) // water_amount is an example value
 {
     if (humidity_difference > 0)
     {
