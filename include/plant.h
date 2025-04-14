@@ -14,8 +14,8 @@ public:
     int humidity;
     int humidity_difference;
 
-    void humidity_sensor_dry_calibration();
-    void humidity_sensor_wet_calibration();
+    int humidity_sensor_dry_calibration();
+    int humidity_sensor_wet_calibration();
     void calibrate_humidity_sensor(int, int);
     void watering(float, int  water_amount = 50);
     int measure_humidity();

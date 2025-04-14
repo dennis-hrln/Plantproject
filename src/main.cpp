@@ -1,10 +1,11 @@
 #include <Arduino.h>
-#include "plant.cpp"
-#include "pflanzenliste.h"
-#include <SD.h>
 #include <LiquidCrystal_I2C.h>
-#include <screen.cpp>
+#include <SD.h>
 #include <RTClib.h>
+
+#include "pflanzenliste.h"
+#include "screen.h"
+#include "plant.h"
 #include "clock_rtc.h"
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -22,6 +23,8 @@ const byte nextButtonPIN = 2;
 const byte selectButtonPIN = 3;
 bool dry_calibrated = true;
 bool wet_calibrated = true;
+bool rtc_available;
+
 
 void check_next_button()
 {
@@ -41,9 +44,12 @@ void setup()
 {
 	// initialize serial communications at 9600 bps:
 	Serial.begin(9600);
+	SD.begin(Stirps.SD_card_pin);
 
 	lcd_screen.innit();
-	starting_up(&rtc);
+	rtc_available = starting_up(&rtc);
+
+
 	// Set pinmodes
 	pinMode(Stirps.sensor_pin, INPUT);
 	pinMode(Stirps.motor_pin, OUTPUT);
@@ -59,37 +65,40 @@ void setup()
 
 void loop()
 {
+	rtc_available = starting_up(&rtc);///////////////////////////////////////////////////////////
+
 	// local variables in loop
 	bool was_watered = false;
-	DateTime watering_time_dt;
-	
+	TimeStruct watering_time, time_now;	
 
 	lcd_screen.screen_dimming(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
 	Stirps.write_to_SDcard(data_frequency);
+	//Stirps.write_to_pc(data_frequency);
 
 	// check if the plant needs watering and water it if needed; get watering time as dt
 	was_watered = humidity_control(&Stirps);
 	if (was_watered == true)
 	{
-		watering_time_dt = rtc.now();
+		get_time(&rtc, &watering_time, rtc_available);
 	}
-
-	Stirps.write_to_pc(data_frequency);
 	calibration();
 	if (next_button_pressed)
 	{
-		next_button(watering_time_dt.year(), watering_time_dt.month(), watering_time_dt.day(),
-		watering_time_dt.hour(), watering_time_dt.minute());
+		next_button(watering_time.year, watering_time.month, watering_time.day,
+		watering_time.hour, watering_time.minute);
 	}
 	if (select_button_pressed)
 	{
 		select_button();
 	}
+	// check if the RTC is available and get the current time
+	get_time(&rtc, &time_now, rtc_available);
+	// update the screen with the current time and date
 	lcd_screen.update_screen(
 		Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity,
-		watering_time_dt.year(), watering_time_dt.month(), watering_time_dt.day(),
-		watering_time_dt.hour(), watering_time_dt.minute()
-	);
+		watering_time.year, watering_time.month, watering_time.day,
+		watering_time.hour, watering_time.minute, time_now.year, time_now.month, time_now.day, time_now.hour, time_now.minute, time_now.second
+		);
 }
 
 bool humidity_control(plant *Pflanze)
@@ -100,7 +109,7 @@ bool humidity_control(plant *Pflanze)
 	float h_diff = Pflanze->measure_humidity();
 	if (h_diff > 0)
 	{
-		Pflanze->watering(h_diff, 100);
+		Pflanze->watering(h_diff, 10);
 		was_watered = true;
 	}
 	return was_watered;
@@ -116,10 +125,10 @@ void calibration()
 		lcd_screen.lcd->print("Dry calibration");
 		lcd_screen.lcd->setCursor(0, 1);
 		lcd_screen.lcd->print("wait 30s");
-		Stirps.humidity_sensor_dry_calibration();
+		int new_cal_value = Stirps.humidity_sensor_dry_calibration();
 		dry_calibrated = true;
 		lcd_screen.lcd->clear();
-		lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
+		lcd_screen.calibrated_value_disp(true, new_cal_value);
 	}
 	if (wet_calibrated == false)
 	{
@@ -128,10 +137,10 @@ void calibration()
 		lcd_screen.lcd->print("Wet calibration");
 		lcd_screen.lcd->setCursor(0, 1);
 		lcd_screen.lcd->print("wait 30s");
-		Stirps.humidity_sensor_wet_calibration();
+		int new_cal_value = Stirps.humidity_sensor_wet_calibration();
 		wet_calibrated = true;
 		lcd_screen.lcd->clear();
-		lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
+		lcd_screen.calibrated_value_disp(false, new_cal_value);
 	}
 }
 
@@ -139,6 +148,10 @@ void next_button(unsigned int year, unsigned int month, unsigned int day, unsign
 {
 	lcd_screen.last_disp_action = millis();
 	lcd_screen.lcd->backlight();
+	TimeStruct now;
+	// get the current time from the RTC
+	get_time(&rtc, &now, rtc_available);
+
 	if (lcd_screen.lit == true)
 	{
 		if (lcd_screen.disp_status == "home")
@@ -156,14 +169,15 @@ void next_button(unsigned int year, unsigned int month, unsigned int day, unsign
 		}
 		else if (lcd_screen.disp_status == "wet_calibration")
 		{
-			DateTime now = rtc.now();
+		
 			lcd_screen.disp_status = "date_disp";
-			lcd_screen.date_disp(now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
+			lcd_screen.date_disp(now.year, now.month, now.day, now.hour, now.minute, now.second);
+			
 		}
 		else if (lcd_screen.disp_status == "date_disp")
 		{
 			lcd_screen.disp_status = "time_disp";
-			lcd_screen.date_disp(rtc.now().year(), rtc.now().month(), rtc.now().day(), rtc.now().hour(), rtc.now().minute(), rtc.now().second());
+			lcd_screen.date_disp(now.year, now.month, now.day, now.hour, now.minute, now.second);
 		}
 		else if (lcd_screen.disp_status == "time_disp")
 		{

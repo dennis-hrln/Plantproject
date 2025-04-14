@@ -15,10 +15,35 @@ bool starting_up(RTC_DS3231* rtc)
     {
         // This will set the RTC to the date & time this sketch was compiled
         rtc->adjust(DateTime(F(__DATE__), F(__TIME__)));
+        Serial.println(F("RTC lost power, setting the time!"));
         
     }
+    Serial.println(F("RTC is running!"));
     
     return true;
+}
+
+void get_time(RTC_DS3231* rtc, TimeStruct* time, bool rtc_available)
+{
+    if (rtc_available == false)
+    {
+        time->year = 2004;
+        time->month = 7;
+        time->day = 2;
+        time->hour = 23;
+        time->minute = 59;
+        time->second = 59;
+        return;
+    }
+    else{
+        DateTime now = rtc->now();   //create a DateTime object
+        time->year = now.year();     //get the year
+        time->month = now.month();   //get the month
+        time->day = now.day();       //get the day
+        time->hour = now.hour();     //get the hour
+        time->minute = now.minute(); //get the minute
+        time->second = now.second(); //get the second
+    }
 }
 
 void adjust_year(RTC_DS3231* rtc)

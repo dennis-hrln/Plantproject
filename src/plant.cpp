@@ -24,7 +24,7 @@ void plant::calibrate_humidity_sensor(int wet, int dry)
     this->sensor_dry = dry;
 }
 
-void plant::humidity_sensor_dry_calibration()
+int plant::humidity_sensor_dry_calibration()
 {
     this->sensor_dry = 0; // reset the sensor_dry value to 0 before calibration
     int calibrating_time = 30 * 1000; // time for the calibration in ms
@@ -42,8 +42,9 @@ void plant::humidity_sensor_dry_calibration()
         }
         
     }
+    return this->sensor_dry; // return the value of the dry sensor
 };
-void plant::humidity_sensor_wet_calibration()
+int plant::humidity_sensor_wet_calibration()
 {
     this->sensor_wet = 1023; // reset the sensor_wet value to 1023 before calibration
     int calibrating_time = 30 * 1000; // time for the calibration in ms
@@ -59,6 +60,7 @@ void plant::humidity_sensor_wet_calibration()
             Serial.println(hum_val);
         }
     }
+    return this->sensor_wet; // return the value of the wet sensor
     // calibrate the sensor
 };
 
@@ -84,7 +86,7 @@ void plant::watering(float humidity_difference, int water_amount) // water_amoun
             this->last_data_write = 0;
             this->watered = true;
             write_to_SDcard(this->SD_card_pin);
-            write_to_pc();
+            //write_to_pc();
             this->watered = false;
         }
     }
