@@ -1,6 +1,7 @@
 
 #include <Arduino.h>
 #include <RTClib.h>
+#include <Ds1302.h>
 #include "clock_rtc.h"
 
 
@@ -111,3 +112,134 @@ void adjust_second(RTC_DS3231* rtc)
     }
     rtc->adjust(DateTime(now.year(), now.month(), now.day(), now.hour(), now.minute(), second)); // Set the RTC to the new second
 }
+
+
+
+
+bool starting_up(Ds1302* rtc)
+{
+    rtc->init();
+
+    // test if clock is halted and set a date-time (see example 2) to start it
+    if (rtc->isHalted())
+    {
+        Serial.println("RTC is halted. Setting time...");
+
+        Ds1302::DateTime dt = {
+            .year = 04,
+            .month = 7,
+            .day = 2,
+            .hour = 12,
+            .minute = 34,
+            .second = 56,
+            .dow = Ds1302::DOW_TUE
+        };
+
+        rtc->setDateTime(&dt);
+    }
+
+    return true;
+}
+
+void get_time(Ds1302* rtc, TimeStruct* time, bool rtc_available)
+{
+    if (rtc_available == false)
+    {
+        time->year = 2004;
+        time->month = 7;
+        time->day = 2;
+        time->hour = 23;
+        time->minute = 59;
+        time->second = 59;
+        return;
+    }
+    else{
+        Ds1302::DateTime now;
+        rtc->getDateTime(&now);
+        time->year = now.year;     //get the year
+        time->month = now.month;   //get the month
+        time->day = now.day;       //get the day
+        time->hour = now.hour;     //get the hour
+        time->minute = now.minute; //get the minute
+        time->second = now.second; //get the second
+    }
+}
+
+void adjust_year(Ds1302* rtc)
+{
+    Ds1302::DateTime now;       //create a DateTime object 
+    rtc->getDateTime(&now);
+    short year = now.year + 1;
+    if (year > 2075)
+    {
+        year = 2025;
+    }
+    Ds1302::DateTime newTime = {year, now.month, now.day, now.hour, now.minute, now.second, now.dow};
+    rtc->setDateTime(&newTime); // Set the RTC to the new year
+}
+
+void adjust_month(Ds1302* rtc)
+{
+    Ds1302::DateTime now;       //create a DateTime object 
+    rtc->getDateTime(&now);
+    byte month= now.month + 1; // month gets bigger
+    if (month > 12)
+    {
+        month = 1;
+    }
+    Ds1302::DateTime newTime = {now.year, month, now.day, now.hour, now.minute, now.second, now.dow};
+    rtc->setDateTime(&newTime); // Set the RTC to the new month
+}
+
+void adjust_day(Ds1302* rtc)
+{
+    Ds1302::DateTime now;       //create a DateTime object 
+    rtc->getDateTime(&now);
+    byte day = now.day + 1; // day gets bigger
+    if (day > 31)
+    {
+        day = 1;
+    }
+    Ds1302::DateTime newTime = {now.year, now.month, day, now.hour, now.minute, now.second, now.dow};
+    rtc->setDateTime(&newTime); // Set the RTC to the new day
+}
+
+void adjust_hour(Ds1302* rtc)
+{
+    Ds1302::DateTime now;       //create a DateTime object 
+    rtc->getDateTime(&now);
+    byte hour = now.hour + 1; // hour gets bigger
+    if (hour > 23)
+    {
+        hour = 0;
+    }
+    Ds1302::DateTime newTime = {now.year, now.month, now.day, hour, now.minute, now.second, now.dow};
+    rtc->setDateTime(&newTime); // Set the RTC to the new hour
+}
+
+void adjust_minute(Ds1302* rtc)
+{
+    Ds1302::DateTime now;       //create a DateTime object 
+    rtc->getDateTime(&now);
+    byte minute = now.minute + 1; // minute gets bigger
+    if (minute > 59)
+    {
+        minute = 0;
+    }
+    Ds1302::DateTime newTime = {now.year, now.month, now.day, now.hour, minute, now.second, now.dow};
+    rtc->setDateTime(&newTime); // Set the RTC to the new minute
+}
+
+void adjust_second(Ds1302* rtc)
+{
+    Ds1302::DateTime now;       //create a DateTime object 
+    rtc->getDateTime(&now);
+    byte second = now.second + 1; // second gets bigger
+    if (second > 59)
+    {
+        second = 0;
+    Ds1302::DateTime newTime = {now.year, now.month, now.day, now.hour, now.minute, second, now.dow};
+    rtc->setDateTime(&newTime); // Set the RTC to the new second
+}
+}
+

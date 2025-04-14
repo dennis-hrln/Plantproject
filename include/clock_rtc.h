@@ -9,13 +9,21 @@ struct TimeStruct {
     int second;
 };
 bool starting_up(RTC_DS3231* rtc);
+bool starting_up(Ds1302* rtc);
 void get_time(RTC_DS3231* rtc, TimeStruct* time_struct, bool rtc_available);
+void get_time(Ds1302* rtc, TimeStruct* time_struct, bool rtc_available);
 void adjust_year(RTC_DS3231* rtc);
+void adjust_year(Ds1302* rtc);
 void adjust_month(RTC_DS3231* rtc);
+void adjust_month(Ds1302* rtc);
 void adjust_day(RTC_DS3231* rtc);
+void adjust_day(Ds1302* rtc);
 void adjust_hour(RTC_DS3231* rtc);
+void adjust_hour(Ds1302* rtc);
 void adjust_minute(RTC_DS3231* rtc);
+void adjust_minute(Ds1302* rtc);
 void adjust_second(RTC_DS3231* rtc);
+void adjust_second(Ds1302* rtc);
 
 
 #endif // CLOCK_RTC_CPP_H
