@@ -104,6 +104,28 @@ void screen::calibration_disp()
     last_disp_change = millis();
 };
 
+void screen::calibrated_value_disp(bool is_dry_calibration, int new_value)
+{
+    lcd->clear();
+    if (this->lit == true)
+    {
+        lcd->backlight();
+    }
+    lcd->setCursor(0, 0);
+    if (is_dry_calibration == true)
+    {
+        lcd->print("New Dry Value: ");
+    }
+    else
+    {
+        lcd->print("New Wet Value: ");
+    }
+    lcd->setCursor(0, 1);
+    lcd->print(new_value);
+
+    last_disp_change = millis();
+};
+
 void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second)
 {
     lcd->clear();
@@ -175,7 +197,8 @@ void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, 
 };
 
 void screen::update_screen(const char* plantname, int humidity, int optimal_humidity,
-unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute)
+unsigned int watered_year, unsigned int  watered_month, unsigned int  watered_day, unsigned int  watered_hour, unsigned int  watered_minute,
+unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minutes, unsigned int seconds)
 {
     if (this->disp_status == "home")
     {
@@ -183,6 +206,10 @@ unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsi
     }
     else if (this->disp_status == "water_disp")
     {
-        this->water_disp(year, month, day, hour, minute);
+        this->water_disp( watered_year,  watered_month,  watered_day,  watered_hour,  watered_minute);
+    }
+    else if (this->disp_status == "date_disp" || this->disp_status == "time_disp")
+    {
+        this->date_disp(year, month, day, hour, minutes, seconds);
     }
 }
