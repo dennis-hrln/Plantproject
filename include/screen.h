@@ -18,9 +18,11 @@ class screen
     void date_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
     unsigned long stay_awake_time = long(60) * long(1000);  // in ms
     void screen_dimming(const char* plantname, int humidity, int optimal_humidity);  // Turns off the backlight after a certain time
+    void calibrated_value_disp(bool is_dry_calibration, int new_value); // Display the new value of the humidity sensor
     void innit();
     void update_screen(const char* plantname, int humidity, int optimal_humidity,
-       unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute);
+       unsigned int H2Oyear, unsigned int H2Omonth, unsigned int H2Oday, unsigned int H2Ohour, unsigned int H2Ominute,
+       unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
     unsigned long last_disp_action = 0;
     String disp_status;
     unsigned long last_disp_change = 0;
