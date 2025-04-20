@@ -7,8 +7,7 @@
 #include <screen.h>
 #include "clock_rtc.h"
 #include "pflanzenliste.h"
-void next_button(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int);
-void next_button(TimeStruct water_time);
+void next_button();
 void select_button();
 
 #endif // BUTTONS_H
