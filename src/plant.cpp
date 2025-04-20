@@ -6,7 +6,7 @@ plant::plant(const char* planttype, int optimal_humidity, const int arduino_sens
     this->optimal_humidity = optimal_humidity;
     this->sensor_pin = arduino_sensor_pin;
     this->motor_pin = arduino_motor_pin;
-    this->last_data_write = 0; // initialize the last data write time to 0
+    
     this->SD_card_pin = arduino_SD_card_pin;
     this->last_watered = 0;
     this->sensor_wet = 1023;
@@ -81,108 +81,10 @@ void plant::watering(float humidity_difference, int water_amount) // water_amoun
             delay(100 * water_amount);
             digitalWrite(this->motor_pin, LOW);
             this->last_watered = millis();
-            this->last_data_write = 0;
             this->watered = true;
-            write_to_SDcard(this->SD_card_pin);
             //write_to_pc();
             this->watered = false;
         }
     }
 };
 
-// initialisation of the SD card I'll write the data to
-void plant::write_to_SDcard(unsigned long measurment_frequency)
-{
-    /*static bool init is used to make sure that the file is only created once
-    because it is static it will keep its value between function calls
-    and will not be reinitialised every time the function is called*/
-    static bool init = false;
-
-    if (!SD.begin(this->SD_card_pin))
-    {
-        // error message
-        Serial.println(F("SD Card initialization failed!"));
-        return;
-    }
-    Serial.println(F("SD Card initialized."));
-    //open file for writing
-    file = SD.open((String(this->planttype) + "log.csv"), FILE_WRITE);
-    // if the file is not initialised yet -> titles for csv file (if init == false)
-    if (!init)
-    {
-        // add date to the file name so every time the program is started a new file is created
-        // #ToDo
-
-        if (file)
-        {
-            // print the names of the data to the file in csv format
-            for (int i = 0; i < static_cast<int>(sizeof(data_names) / sizeof(data_names[0])); i++)
-            {
-                file.print(this->data_names[i]);
-                file.print(F(", "));
-            }
-            file.println(); // Add newline after headers
-            init = true;
-        }
-        else
-        {
-            // error message
-            // Serial.println(F("SD Card initialization failed!"));
-            // Serial.print(F("SD Card: error on opening file.\n"));
-        }
-    }
-
-    else
-    {
-        if (millis() - this->last_data_write < measurment_frequency)
-        {
-            return;
-        }
-
-        if (file)
-        {
-            // print the data to the file in csv format
-
-            file.println((String(millis()/1000) + ", " + this->planttype + ", " + String(this->optimal_humidity) + ", " + String(this->humidity) + ", " + String(this->watered)));
-            this->last_data_write = millis();
-        }
-        else
-        {
-            // error message
-            // Serial.println(F("SD Card initialization failed!"));
-            // Serial.print(F("SD Card: error on opening file. \n"));
-        }
-    }
-    file.close();
-}
-
-void plant::write_to_pc(unsigned long measurment_frequency)
-{
-    static bool initiation = true;
-
-    if (initiation)
-    {
-
-        Serial.println(F("runtime[s], planttype, optimal_humidity, humidity, watered"));
-        initiation = false;
-    }
-
-    else
-    {
-        if (millis() - this->last_data_write < measurment_frequency)
-        {
-            return;
-        }
-        Serial.println();
-        Serial.print(millis()/1000);
-        Serial.print(F(", "));
-        Serial.print(this->planttype );
-        Serial.print(F(", "));
-        Serial.print(this->optimal_humidity);
-        Serial.print(F(", "));
-        Serial.print(this->humidity);
-        Serial.print(F(", "));
-        Serial.print(this->watered);
-        this->last_data_write = millis();
-    }
-}
