@@ -24,7 +24,24 @@ class screen
        unsigned int H2Oyear, unsigned int H2Omonth, unsigned int H2Oday, unsigned int H2Ohour, unsigned int H2Ominute,
        unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second);
     unsigned long last_disp_action = 0;
-    String disp_status;
+    enum DispStatus {
+      STARTUP,
+      HOME,
+      WATER_DISP,
+      DRY_CALIBRATION,
+      WET_CALIBRATION,
+      DATE_DISP,
+      TIME_DISP,
+      EDIT_YEAR,
+      EDIT_MONTH,
+      EDIT_DAY,
+      EDIT_HOUR,
+      EDIT_MINUTE,
+      EDIT_SECOND
+    }; // Display status enum
+    // create a instace of the enum -> used in the code
+    DispStatus disp_status;
+
     unsigned long last_disp_change = 0;
     bool lit = true;
 
