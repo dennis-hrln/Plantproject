@@ -2,20 +2,24 @@
 #include <LiquidCrystal_I2C.h>
 #include <SD.h>
 #include <RTClib.h>
+#include <Ds1302.h>
 
-#include "pflanzenliste.h"
+// #include "pflanzenliste.h"
 #include "screen.h"
 #include "plant.h"
 #include "clock_rtc.h"
+#include "buttons.h"
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-RTC_DS3231 rtc;
+// RTC_DS3231 rtc;
+Ds1302 rtc(10, 9, 8);
+// byte rtc;		//debug or rtc is not existant
+
 screen lcd_screen(&lcd);
 
 bool humidity_control(plant *);
 void calibration();
-void next_button(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int);
-void select_button();
+
 unsigned long data_frequency = 5000; // time in ms between data writes to the SD card
 volatile bool next_button_pressed = false;
 volatile bool select_button_pressed = false;
@@ -47,9 +51,9 @@ void setup()
 	SD.begin(Stirps.SD_card_pin);
 
 	lcd_screen.innit();
+
+
 	rtc_available = starting_up(&rtc);
-
-
 	// Set pinmodes
 	pinMode(Stirps.sensor_pin, INPUT);
 	pinMode(Stirps.motor_pin, OUTPUT);
@@ -61,12 +65,11 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(selectButtonPIN), check_select_button, RISING);
 	// to calibrate the sensor remove the two int in the function
 	Stirps.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
+
 }
 
 void loop()
 {
-	rtc_available = starting_up(&rtc);///////////////////////////////////////////////////////////
-
 	// local variables in loop
 	bool was_watered = false;
 	TimeStruct watering_time, time_now;	
@@ -84,8 +87,11 @@ void loop()
 	calibration();
 	if (next_button_pressed)
 	{
-		next_button(watering_time.year, watering_time.month, watering_time.day,
-		watering_time.hour, watering_time.minute);
+		// next_button(watering_time.year, watering_time.month, watering_time.day,
+		// watering_time.hour, watering_time.minute);
+	
+		// next_button(2024, 12, 25, 9, 26);
+		next_button(watering_time);
 	}
 	if (select_button_pressed)
 	{
@@ -144,77 +150,3 @@ void calibration()
 	}
 }
 
-void next_button(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute)
-{
-	lcd_screen.last_disp_action = millis();
-	lcd_screen.lcd->backlight();
-	TimeStruct now;
-	// get the current time from the RTC
-	get_time(&rtc, &now, rtc_available);
-
-	if (lcd_screen.lit == true)
-	{
-		if (lcd_screen.disp_status == "home")
-		{
-			lcd_screen.water_disp(year, month, day, hour, minute );
-		}
-		else if (lcd_screen.disp_status == "water_disp")
-		{
-			lcd_screen.calibration_disp();
-		}
-		else if (lcd_screen.disp_status == "dry_calibration")
-		{
-			lcd_screen.disp_status = "wet_calibration";
-			lcd_screen.calibration_disp();
-		}
-		else if (lcd_screen.disp_status == "wet_calibration")
-		{
-		
-			lcd_screen.disp_status = "date_disp";
-			lcd_screen.date_disp(now.year, now.month, now.day, now.hour, now.minute, now.second);
-			
-		}
-		else if (lcd_screen.disp_status == "date_disp")
-		{
-			lcd_screen.disp_status = "time_disp";
-			lcd_screen.date_disp(now.year, now.month, now.day, now.hour, now.minute, now.second);
-		}
-		else if (lcd_screen.disp_status == "time_disp")
-		{
-			lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
-		}
-
-		else
-		{
-			lcd_screen.lcd->clear();
-			lcd_screen.lcd->setCursor(0, 0);
-			lcd_screen.lcd->print("startup");
-			lcd_screen.disp_status = "home";
-			delay(2000);
-			lcd_screen.home_disp(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
-		}
-	}
-	next_button_pressed = false;
-	lcd_screen.lit = true;
-	delay(100);
-}
-
-void select_button()
-{
-	lcd_screen.last_disp_action = millis();
-	lcd_screen.lcd->backlight();
-	if (lcd_screen.lit == true)
-	{
-		if (lcd_screen.disp_status == "dry_calibration")
-		{
-			dry_calibrated = false;
-		}
-		else if (lcd_screen.disp_status == "wet_calibration")
-		{
-			wet_calibrated = false;
-		}
-	}
-	lcd_screen.lit = true;
-	select_button_pressed = false;
-	delay(100);
-}
