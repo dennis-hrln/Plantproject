@@ -6,6 +6,7 @@
 screen::screen(LiquidCrystal_I2C* LCD)
 {
     this->lcd = LCD;
+    this->disp_status = STARTUP;
 };
 
 void screen::innit()
@@ -15,14 +16,18 @@ void screen::innit()
     lcd->setCursor(0, 0);
     lcd->print("Instagram");
     lcd->setCursor(0, 1);
-    lcd->print("dennis_hrln");
+    lcd->print(F("3dEngineeringDE"));
+    this->disp_status = STARTUP;
+    Serial.println(F("lcd is starting up..."));
+    Serial.println(this->disp_status);
+    lcd->createChar(0, select_char);
     delay(2000);
     // lcd->createChar(1, left_arrow);
     // lcd->createChar(2, right_arrow);
     // lcd->createChar(3, down_arrow);
     // lcd->createChar(4, up_arrow);
-    lcd->createChar(0, select_char);
-    this->disp_status = "startup";
+    
+    
 
 };
 void screen::screen_dimming(const char* plantname, int humidity, int optimal_humidity)
@@ -37,7 +42,7 @@ void screen::screen_dimming(const char* plantname, int humidity, int optimal_hum
 
 void screen::home_disp(const char* plantname, int humidity, int optimal_humidity)
 {
-    this->disp_status = "home";
+    this->disp_status = HOME;
     lcd->clear();
     if (this->lit == true)
     {
@@ -57,7 +62,7 @@ void screen::home_disp(const char* plantname, int humidity, int optimal_humidity
 void screen::water_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute)
 {
     //logic for last watered into months days hours mins seconds
-    this->disp_status = "water_disp";
+    this->disp_status = WATER_DISP;
     lcd->clear();
     if (this->lit == true)
     {
@@ -90,7 +95,7 @@ void screen::calibration_disp()
     lcd->print("calibrate dry");
     lcd->setCursor(0, 1);
     lcd->print("calibrate wet");
-    if (this->disp_status == "wet_calibration")
+    if (this->disp_status == screen::WET_CALIBRATION)
     {
         lcd->setCursor(15, 1);
         lcd->write(0);
@@ -99,7 +104,7 @@ void screen::calibration_disp()
     {
         lcd->setCursor(15, 0);
         lcd->write(0);
-        this->disp_status = "dry_calibration";        
+        this->disp_status = screen::DRY_CALIBRATION;        
     }
     last_disp_change = millis();
 };
@@ -148,46 +153,49 @@ void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, 
     lcd->print(second);
 
     // show what would be edited when pressing the edit button
-    if (this->disp_status == "date_disp")
+    if (this->disp_status == DATE_DISP)
     {
-            lcd->setCursor(15,0);
-            lcd->write(0);
-        if (this->disp_status == "edit_year")
+        lcd->setCursor(15,0);
+        lcd->write(0);
+        switch(this->disp_status)
         {
-            lcd->setCursor(1,0);
-            lcd->blink();
-        }
-    else if (this->disp_status == "edit_month")
-        {
-            lcd->setCursor(3, 0);
-            lcd->blink();
-        }
-    else if (this->disp_status == "edit_day")
-        {
-            lcd->setCursor(6, 0);
-            lcd->blink();
+            case EDIT_YEAR:
+                lcd->setCursor(1, 0);
+                lcd->blink();
+                break;
+            case EDIT_MONTH:
+                lcd->setCursor(3, 0);
+                lcd->blink();
+                break;
+            case EDIT_DAY:
+                lcd->setCursor(6, 0);
+                lcd->blink();
+                break;
+            default:
+                break;
         }
     }
     else
     {
-        this->disp_status = "time_disp";
+        this->disp_status = TIME_DISP;
         lcd->setCursor(15, 1);
         lcd->write(0);
-
-        if (this->disp_status == "edit_hour")
+        switch(this->disp_status)
         {
-            lcd->setCursor(9, 0);
-            lcd->blink();
-        }
-        else if (this->disp_status == "edit_minute")
-        {
-            lcd->setCursor(12, 0);
-            lcd->blink();
-        }
-        else if (this->disp_status == "edit_second")
-        {
-            lcd->setCursor(15, 0);
-            lcd->blink();
+            case EDIT_HOUR:
+                lcd->setCursor(9, 0);
+                lcd->blink();
+                break;
+            case EDIT_MINUTE:
+                lcd->setCursor(12, 0);
+                lcd->blink();
+                break;
+            case EDIT_SECOND:
+                lcd->setCursor(15, 0);
+                lcd->blink();
+                break;
+            default:
+                break;
         }
     }
 
@@ -200,16 +208,20 @@ void screen::update_screen(const char* plantname, int humidity, int optimal_humi
 unsigned int watered_year, unsigned int  watered_month, unsigned int  watered_day, unsigned int  watered_hour, unsigned int  watered_minute,
 unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minutes, unsigned int seconds)
 {
-    if (this->disp_status == "home")
+    if (this->disp_status == HOME)
     {
         this->home_disp(plantname, humidity, optimal_humidity);
     }
-    else if (this->disp_status == "water_disp")
+    else if (this->disp_status == WATER_DISP)
     {
         this->water_disp( watered_year,  watered_month,  watered_day,  watered_hour,  watered_minute);
     }
-    else if (this->disp_status == "date_disp" || this->disp_status == "time_disp")
+    else if (this->disp_status == DATE_DISP || this->disp_status == TIME_DISP)
     {
         this->date_disp(year, month, day, hour, minutes, seconds);
+    }
+    else if (this->disp_status == STARTUP)
+    {
+        this->home_disp(plantname, humidity, optimal_humidity);
     }
 }
