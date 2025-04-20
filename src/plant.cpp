@@ -101,10 +101,11 @@ void plant::write_to_SDcard(unsigned long measurment_frequency)
     if (!SD.begin(this->SD_card_pin))
     {
         // error message
-        // Serial.println(F("SD Card initialization failed!"));
+        Serial.println(F("SD Card initialization failed!"));
         return;
     }
-
+    Serial.println(F("SD Card initialized."));
+    //open file for writing
     file = SD.open((String(this->planttype) + "log.csv"), FILE_WRITE);
     // if the file is not initialised yet -> titles for csv file (if init == false)
     if (!init)

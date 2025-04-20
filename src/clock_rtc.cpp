@@ -144,14 +144,14 @@ bool starting_up(Ds1302* rtc)
 
 void reset_time(Ds1302* rtc)
 {
-    Serial.println("reset_time() called");
+    // Serial.println("reset_time() called");
     Ds1302::DateTime dt = {
-        .year = 11,
-        .month = 11,
-        .day = 11,
+        .year = 25,
+        .month = 01,
+        .day = 01,
         .hour = 11,
-        .minute = 11,
-        .second = 11,
+        .minute = 59,
+        .second = 10,
         .dow = 1 // 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
     };
     rtc->setDateTime(&dt);

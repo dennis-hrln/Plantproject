@@ -1,3 +1,26 @@
+/*
+Arduino pin wiring:
+*  - Pin 2: Next button (input)
+*  - Pin 3: Select button (input)
+*  - Pin 4: RTC RST pin (input?)
+*  - Pin 5: RTC CLK pin (input?)
+*  - Pin 6: RTC DAT pin (output)
+*  - Pin 7: Motor pin (output)
+
+*  - Pin 10: SD card MOSI pin (input?)
+*  - Pin 11: SD card CS pin (input?)
+*  - Pin 12: SD card MISO pin (input?)
+*  - Pin 13: SD card CLK pin (input?)
+
+*  - Pin A0: Humidity sensor pin (input)
+
+*  - Pin A4: LCD SDA pin (output)
+*  - Pin A5: LCD SLC pin (output)
+
+5V: LCD, RTC
+3V: SD card, Motor, Humidity sensor
+
+*/
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <SD.h>
@@ -12,7 +35,10 @@
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 // RTC_DS3231 rtc;
-Ds1302 rtc(10, 9, 8);
+
+Ds1302 rtc(4, 5, 6); // Pin 4 is the rst pin, pin 6 is the DAT pin, pin  5 is the clock pin CLK pin
+
+
 // byte rtc;		//debug or rtc is not existant
 
 screen lcd_screen(&lcd);
@@ -70,9 +96,9 @@ void setup()
 
 void loop()
 {
-	// local variables in loop
 	bool was_watered = false;
 	TimeStruct watering_time, time_now;	
+	
 
 	lcd_screen.screen_dimming(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
 	Stirps.write_to_SDcard(data_frequency);
@@ -91,7 +117,7 @@ void loop()
 		// watering_time.hour, watering_time.minute);
 	
 		// next_button(2024, 12, 25, 9, 26);
-		next_button(watering_time);
+		next_button();
 	}
 	if (select_button_pressed)
 	{
