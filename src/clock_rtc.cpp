@@ -1,9 +1,5 @@
 
-#include <Arduino.h>
-#include <RTClib.h>
-#include <Ds1302.h>
 #include "clock_rtc.h"
-
 
 bool starting_up(RTC_DS3231* rtc)
 {
@@ -23,6 +19,8 @@ bool starting_up(RTC_DS3231* rtc)
     
     return true;
 }
+
+
 
 void get_time(RTC_DS3231* rtc, TimeStruct* time, bool rtc_available)
 {
@@ -117,37 +115,55 @@ void adjust_second(RTC_DS3231* rtc)
 
 
 bool starting_up(Ds1302* rtc)
-{
+{   
+    
     rtc->init();
-
     // test if clock is halted and set a date-time (see example 2) to start it
     if (rtc->isHalted())
     {
         Serial.println("RTC is halted. Setting time...");
 
         Ds1302::DateTime dt = {
-            .year = 04,
-            .month = 7,
-            .day = 2,
-            .hour = 12,
-            .minute = 34,
-            .second = 56,
-            .dow = Ds1302::DOW_TUE
+            .year = 25,
+            .month = 11,
+            .day = 11,
+            .hour = 11,
+            .minute = 11,
+            .second = 11,
+            // .dow = calculateDayOfWeek(.year, .month, .day);
+            .dow = 1 // 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
         };
 
         rtc->setDateTime(&dt);
-    }
+        rtc-> start();
 
+        return true; // RTC was halted and time was set
+    }
     return true;
+}
+
+void reset_time(Ds1302* rtc)
+{
+    Serial.println("reset_time() called");
+    Ds1302::DateTime dt = {
+        .year = 11,
+        .month = 11,
+        .day = 11,
+        .hour = 11,
+        .minute = 11,
+        .second = 11,
+        .dow = 1 // 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
+    };
+    rtc->setDateTime(&dt);
 }
 
 void get_time(Ds1302* rtc, TimeStruct* time, bool rtc_available)
 {
     if (rtc_available == false)
     {
-        time->year = 2004;
-        time->month = 7;
-        time->day = 2;
+        time->year = 04;
+        time->month = 07;
+        time->day = 02;
         time->hour = 23;
         time->minute = 59;
         time->second = 59;
@@ -170,9 +186,9 @@ void adjust_year(Ds1302* rtc)
     Ds1302::DateTime now;       //create a DateTime object 
     rtc->getDateTime(&now);
     short year = now.year + 1;
-    if (year > 2075)
+    if (year > 75)
     {
-        year = 2025;
+        year = 25;
     }
     Ds1302::DateTime newTime = {year, now.month, now.day, now.hour, now.minute, now.second, now.dow};
     rtc->setDateTime(&newTime); // Set the RTC to the new year
@@ -243,3 +259,39 @@ void adjust_second(Ds1302* rtc)
 }
 }
 
+bool starting_up(byte* rtc)
+{
+    return false;
+}
+void reset_time(byte* rtc)
+{
+    return;
+}
+void get_time(byte* rtc, TimeStruct* time_struct, bool rtc_available)
+{
+    return;
+}
+void adjust_year(byte* rtc)
+{
+    return;
+}
+void adjust_month(byte* rtc)
+{
+    return;
+}
+void adjust_day(byte* rtc)
+{
+    return;
+}
+void adjust_hour(byte* rtc)
+{
+    return;
+}
+void adjust_minute(byte* rtc)
+{
+    return;
+}
+void adjust_second(byte* rtc)
+{
+    return;
+}
