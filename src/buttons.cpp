@@ -14,7 +14,6 @@ extern screen lcd_screen;
 void select_button()
 {
 	lcd_screen.last_disp_action = millis();
-	lcd_screen.lcd->backlight();
     lcd_screen.lit = true;
 	select_button_pressed = false;
 
@@ -23,7 +22,6 @@ void select_button()
         switch(lcd_screen.disp_status)
         {
             case screen::HOME:
-                lcd_screen.lcd->noBacklight();
                 lcd_screen.lit = false;
                 // Startup case does not need to be handled here - only here for clarity
             case screen::STARTUP:
@@ -77,8 +75,15 @@ void select_button()
                 break;
         }
 	}
-	
-	// delay(100);
+    if (lcd_screen.lit == false)
+    {
+        lcd_screen.lcd->noBacklight();
+    }
+    else
+    {
+        lcd_screen.lcd->backlight();
+    }
+	delay(100);
 }
 
 // für  RTC DS1302
@@ -94,6 +99,7 @@ void next_button()
 
 	if (lcd_screen.lit == true)
 	{
+        lcd_screen.prev_disp = screen::CHANGED;
 		switch (lcd_screen.disp_status)
 		{
 			case screen::HOME:
@@ -157,5 +163,5 @@ void next_button()
 	}
 	next_button_pressed = false;
 	lcd_screen.lit = true;
-	// delay(100);
+	delay(100);
 }

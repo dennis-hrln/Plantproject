@@ -27,17 +27,17 @@ Arduino pin wiring:
 #include <RTClib.h>
 #include <Ds1302.h>
 
-// #include "pflanzenliste.h"
+#include "pflanzenliste.h"
 #include "screen.h"
 #include "plant.h"
 #include "clock_rtc.h"
 #include "buttons.h"
+#include "sd_card.h"
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 // RTC_DS3231 rtc;
-
 Ds1302 rtc(4, 5, 6); // Pin 4 is the rst pin, pin 6 is the DAT pin, pin  5 is the clock pin CLK pin
-
+SD_Card micro_sd(10, 5000); // SD card pin 10, 5s delay for the SD card
 
 // byte rtc;		//debug or rtc is not existant
 
@@ -46,7 +46,6 @@ screen lcd_screen(&lcd);
 bool humidity_control(plant *);
 void calibration();
 
-unsigned long data_frequency = 5000; // time in ms between data writes to the SD card
 volatile bool next_button_pressed = false;
 volatile bool select_button_pressed = false;
 const byte nextButtonPIN = 2;
@@ -101,8 +100,8 @@ void loop()
 	
 
 	lcd_screen.screen_dimming(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
-	Stirps.write_to_SDcard(data_frequency);
-	//Stirps.write_to_pc(data_frequency);
+	
+	//Stirps.write_to_pc(data_frequency, &Stirps);
 
 	// check if the plant needs watering and water it if needed; get watering time as dt
 	was_watered = humidity_control(&Stirps);
@@ -131,6 +130,12 @@ void loop()
 		watering_time.year, watering_time.month, watering_time.day,
 		watering_time.hour, watering_time.minute, time_now.year, time_now.month, time_now.day, time_now.hour, time_now.minute, time_now.second
 		);
+		if (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
+		{
+			Serial.println(F("Writing to SD card..."));
+			// micro_sd.write_to_SDcard(&Stirps, &time_now);////////////////////////////////////////////////////////////7
+		}
+		delay(200);
 }
 
 bool humidity_control(plant *Pflanze)
