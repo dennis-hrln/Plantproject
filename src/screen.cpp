@@ -38,24 +38,46 @@ void screen::screen_dimming(const char* plantname, int humidity, int optimal_hum
     }
 };
 
-void screen::home_disp(const char* plantname, int humidity, int optimal_humidity)
+void screen::home_disp(const char *plantname, int humidity, int optimal_humidity)
 {
     this->disp_status = HOME;
-    lcd->clear();
-    lcd->noBlink();
-    lcd->noCursor();
+    bool refresh = check_for_change();
     if (this->lit == true)
     {
         lcd->backlight();
     }
-    lcd->setCursor(0, 0);
-    lcd->print(plantname);
-    lcd->setCursor(0, 1);
-    lcd->print("Hum. ");
-    lcd->print(humidity);
-    lcd->print("% / ");
-    lcd->print(optimal_humidity);
-    lcd->print("%");
+
+    if (refresh == true)
+    {
+
+        lcd->setCursor(0, 0);
+        lcd->print(plantname);
+        lcd->setCursor(0, 1);
+        lcd->print("Hum. ");
+
+        lcd->setCursor(8, 1);
+        lcd->print("% / ");
+        lcd->print(optimal_humidity);
+        lcd->print("%");
+    }
+
+    if (prev_humidity != humidity || refresh == true)
+    {
+        lcd->setCursor(5, 1);
+        if (humidity < 0)
+        {
+        }
+        else if (humidity < 10)
+        {
+            lcd->print(F("   "));
+        }
+        else if (humidity > 9)
+        {
+            lcd->print(F("  "));
+        }
+        lcd->print(humidity);
+    }
+    prev_humidity = humidity;
     last_disp_change = millis();
 };
 
@@ -63,7 +85,9 @@ void screen::water_disp(unsigned int year, unsigned int month, unsigned int day,
 {
     //logic for last watered into months days hours mins seconds
     this->disp_status = WATER_DISP;
-    lcd->clear();
+    
+
+    
     if (this->lit == true)
     {
         lcd->backlight();
@@ -86,26 +110,31 @@ void screen::water_disp(unsigned int year, unsigned int month, unsigned int day,
 
 void screen::calibration_disp()
 {
-    lcd->clear();
+    bool refresh = check_for_change();
     if (this->lit == true)
     {
         lcd->backlight();
     }
-    lcd->setCursor(0, 0);
-    lcd->print("calibrate dry");
-    lcd->setCursor(0, 1);
-    lcd->print("calibrate wet");
-    if (this->disp_status == screen::WET_CALIBRATION)
-    {
-        lcd->setCursor(15, 1);
-        lcd->write(0);
-    }
-    else
-    {
-        lcd->setCursor(15, 0);
-        lcd->write(0);
-        this->disp_status = screen::DRY_CALIBRATION;        
-    }
+    if (refresh == true)
+        {
+
+            lcd->setCursor(0, 0);
+            lcd->print("calibrate dry");
+            lcd->setCursor(0, 1);
+            lcd->print("calibrate wet");
+            if (this->disp_status == screen::WET_CALIBRATION)
+            {
+                lcd->setCursor(15, 1);
+                lcd->write(0);
+            }
+            else
+            {
+                lcd->setCursor(15, 0);
+                lcd->write(0);
+                this->disp_status = screen::DRY_CALIBRATION;
+            }
+        }
+    this->prev_disp = this->disp_status;
     last_disp_change = millis();
 };
 
@@ -133,7 +162,7 @@ void screen::calibrated_value_disp(bool is_dry_calibration, int new_value)
 
 void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute, unsigned int second)
 {
-    lcd->clear();
+    check_for_change();
     if (this->lit == true)
     {
         lcd->backlight();
@@ -225,10 +254,28 @@ void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, 
                 break;
         }
     }
-
     last_disp_change = millis();
     
 
+};
+
+/*check if the display has changed and clear the display if it has - retuns true if the display has changed
+this is used to prevent flickering of the display when the display is updated 
+does not work for display with changing content (like date and time)*/
+bool screen::check_for_change()
+{
+    if (this->prev_disp != this->disp_status)
+    {
+        lcd->noBlink();
+        lcd->noCursor();
+        lcd->clear();
+        this->prev_disp = this->disp_status;
+        return true; //display has changed
+    }
+    else
+    {
+        return false; //display has not changed
+    }
 };
 
 void screen::update_screen(const char* plantname, int humidity, int optimal_humidity,
