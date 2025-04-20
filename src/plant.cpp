@@ -1,6 +1,4 @@
-#include <Arduino.h>
 #include "plant.h"
-#include <SD.h>
 
 plant::plant(const char* planttype, int optimal_humidity, const int arduino_sensor_pin, const int arduino_motor_pin, const int arduino_SD_card_pin)
 {
