@@ -130,12 +130,10 @@ void loop()
 		watering_time.year, watering_time.month, watering_time.day,
 		watering_time.hour, watering_time.minute, time_now.year, time_now.month, time_now.day, time_now.hour, time_now.minute, time_now.second
 		);
-		if (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
-		{
-			Serial.println(F("Writing to SD card..."));
-			// micro_sd.write_to_SDcard(&Stirps, &time_now);////////////////////////////////////////////////////////////7
-		}
-		delay(200);
+		// if (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
+		// {
+			micro_sd.write_to_SDcard(&Stirps, &time_now);
+		// }
 }
 
 bool humidity_control(plant *Pflanze)
