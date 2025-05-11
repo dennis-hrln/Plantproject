@@ -50,12 +50,16 @@ public:
 	Edit_Time_status edit_time_stat;
 	unsigned long last_disp_change = 0;
 	bool lit = true;
+	bool blinking; // checks if the cursor is blinking
 
 private:
+bool avoid_negative_humidity = true; //turn off for testing
 bool check_for_change(); // check if the display has changed - does not check for changing content (like date and time) only for disp changes (home->time, etc.)
 	int prev_humidity; // previous humidity value
 	char prev_plantname[20]; // previous plant name
 	unsigned int refresh_rate = 300; // Display frequency enum
+	unsigned long hum_refresh_rate = 1000; // Refresh rate for humidity display
+	unsigned long hum_last_refresh = 0; // Last refresh time for humidity display
 	
 	// Custom characters
 
