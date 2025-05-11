@@ -61,22 +61,29 @@ void screen::home_disp(const char *plantname, int humidity, int optimal_humidity
         lcd->print("%");
     }
 
-    if (prev_humidity != humidity || refresh == true)
+    if ((prev_humidity != humidity && ((millis() - hum_last_refresh) > hum_refresh_rate)) || refresh == true)
     {
         lcd->setCursor(5, 1);
         if (humidity < 0)
         {
+            if (avoid_negative_humidity == true)
+            {
+                lcd->print(F(" -"));
+                humidity = 0;
+            }
         }
         else if (humidity < 10)
         {
-            lcd->print(F("   "));
+            lcd->print(F("  "));
         }
         else if (humidity > 9)
         {
-            lcd->print(F("  "));
+            lcd->print(F(" "));
         }
         lcd->print(humidity);
+        hum_last_refresh = millis();
     }
+
     prev_humidity = humidity;
     last_disp_change = millis();
 };
@@ -215,18 +222,31 @@ void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, 
         {
             case EDIT_YEAR:
                 lcd->setCursor(3, 0);
-                lcd->blink();
+                if (this->blinking == false)
+                {
+                    lcd->blink();
+                    this->blinking = true;
+                }
                 break;
             case EDIT_MONTH:
                 lcd->setCursor(6, 0);
-                lcd->blink();
+                if (this->blinking == false)
+                {
+                    lcd->blink();
+                    this->blinking = true;
+                }
                 break;
             case EDIT_DAY:
                 lcd->setCursor(9, 0);
-                lcd->blink();
+                if (this->blinking == false)
+                {
+                    lcd->blink();
+                    this->blinking = true;
+                }
                 break;
             default:
             lcd->noBlink();
+            this->blinking = false;
                 break;
         }
     }
@@ -239,18 +259,31 @@ void screen::date_disp(unsigned int year, unsigned int month, unsigned int day, 
         {
             case EDIT_HOUR:
                 lcd->setCursor(1, 1);
-                lcd->blink();
+                if (this->blinking == false)
+                {
+                    lcd->blink();
+                    this->blinking = true;
+                }
                 break;
             case EDIT_MINUTE:
                 lcd->setCursor(4, 1);
-                lcd->blink();
+                if (this->blinking == false)
+                {
+                    lcd->blink();
+                    this->blinking = true;
+                }
                 break;
             case EDIT_SECOND:
                 lcd->setCursor(7, 1);
-                lcd->blink();
+                if (this->blinking == false)
+                {
+                    lcd->blink();
+                    this->blinking = true;
+                }
                 break;
             default:
             lcd->noBlink();
+            this->blinking = false;
                 break;
         }
     }
@@ -305,9 +338,7 @@ unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsi
         case STARTUP:
                 lcd->clear();
 				lcd->setCursor(0, 0);
-				lcd->print(disp_status);
-                lcd->setCursor(0, 1);
-				lcd->print("loading");
+				lcd->print("loading...");
 				delay(2000);
                 this->disp_status = HOME;
             break;
