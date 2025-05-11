@@ -50,6 +50,8 @@ void select_button()
                     case screen::EDIT_DAY:
                         adjust_day(&rtc);
                         break;
+                    case screen::CHANGED:
+                        break;  
                     default:
                         break;
                 }
