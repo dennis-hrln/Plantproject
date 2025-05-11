@@ -9,11 +9,12 @@ SD_Card::SD_Card(int pin, unsigned long data_write_frequency)
 
 void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now)
 {
-
+    File testt = SD.open("testanfang.txt", FILE_WRITE);
+    testt.close();
     // the plant instance is used to get the data from the plant class (for example the humidity from Stirps)
-    if (millis() - this->last_data_write > this->data_frequency && millis()> 5000)
+    if ((millis() - this->last_data_write > this->data_frequency) && millis()> 5000)
     {
-
+        SD.open("testnachmillis", FILE_WRITE);
         int Year = now->year;
         int Month = now->month;
         int Day = now->day;
@@ -27,14 +28,16 @@ void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now)
 
         if (!SD.begin(this->SD_card_pin))
         {
-
+            SD.open("test_bei_not_SDbegin", FILE_WRITE);
             return;
         }
-        // open file for writing
 
+        // open file for writing
+        SD.open("testvorsnprintf", FILE_WRITE);
         snprintf(filename, sizeof(filename), "%s_%04d.%02d.%02d_data.csv", plant_instance->planttype,
                  Year, Month, Day);
         // Serial.print(filename);
+        SD.open("test_nach_snprntf", FILE_WRITE);
 
         file = SD.open(filename, FILE_WRITE);
         // if the file is not initialised yet -> titles for csv file (if init == false)
