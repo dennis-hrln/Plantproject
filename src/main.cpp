@@ -34,15 +34,19 @@ Arduino pin wiring:
 #include "buttons.h"
 #include "sd_card.h"
 
+// components - declare what coponents are used in the project
+bool sd_card_used = false; // does this project use a sd card?
+
+float fps = 1; // miliseconds per frame 
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-// RTC_DS3231 rtc;
 Ds1302 rtc(4, 5, 6); // Pin 4 is the rst pin, pin 6 is the DAT pin, pin  5 is the clock pin CLK pin
 SD_Card micro_sd(10, 5000); // SD card pin 10, 5s delay for the SD card
-
+// RTC_DS3231 rtc;
 // byte rtc;		//debug or rtc is not existant
 
-screen lcd_screen(&lcd);
 
+screen lcd_screen(&lcd);
 bool humidity_control(plant *);
 void calibration();
 
@@ -53,6 +57,7 @@ const byte selectButtonPIN = 3;
 bool dry_calibrated = true;
 bool wet_calibrated = true;
 bool rtc_available;
+unsigned long last_frame_time;
 
 
 void check_next_button()
@@ -95,6 +100,7 @@ void setup()
 
 void loop()
 {
+	
 	bool was_watered = false;
 	TimeStruct watering_time, time_now;	
 	
@@ -112,28 +118,34 @@ void loop()
 	calibration();
 	if (next_button_pressed)
 	{
-		// next_button(watering_time.year, watering_time.month, watering_time.day,
-		// watering_time.hour, watering_time.minute);
-	
-		// next_button(2024, 12, 25, 9, 26);
 		next_button();
+		lcd_screen.blinking = false; //turn off blinking
+		last_frame_time = 0; //ensure that the screen is updated after the button is pressed
 	}
 	if (select_button_pressed)
 	{
-		select_button();
+		lcd_screen.blinking = false; //turn off blinking
+		select_button(); //ensure that the screen is updated after the button is pressed
+		last_frame_time = 0;
 	}
 	// check if the RTC is available and get the current time
 	get_time(&rtc, &time_now, rtc_available);
 	// update the screen with the current time and date
+	if (sd_card_used == true){ // && (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
+		micro_sd.write_to_SDcard(&Stirps, &time_now);
+	}
+	if (last_frame_time + (1000/fps) < millis())
+	{
 	lcd_screen.update_screen(
 		Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity,
 		watering_time.year, watering_time.month, watering_time.day,
 		watering_time.hour, watering_time.minute, time_now.year, time_now.month, time_now.day, time_now.hour, time_now.minute, time_now.second
 		);
-		// if (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
-		// {
-			micro_sd.write_to_SDcard(&Stirps, &time_now);
-		// }
+		last_frame_time = millis();
+	}
+	
+	
+	
 }
 
 bool humidity_control(plant *Pflanze)
