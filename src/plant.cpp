@@ -88,3 +88,21 @@ void plant::watering(float humidity_difference, int water_amount) // water_amoun
     }
 };
 
+// getter and setter functions
+int plant::get_humidity()
+{
+    return this->humidity;
+};
+int plant::get_sensor_pin()
+{
+    return this->sensor_pin;
+};
+int plant::get_motor_pin()
+{
+    return this->motor_pin;
+};
+int plant::get_SD_card_pin()
+{
+    return this->SD_card_pin;
+};
+
