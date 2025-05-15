@@ -14,8 +14,6 @@ void SD_Card::initialize_SD_card()
     if (!initialized) {
         if(SD.begin(this->SD_card_pin)){
             initialized = true;
-            File testt = SD.open("24_24_24.txt", FILE_WRITE);
-            testt.close();
             Serial.println(F("SD Card initialized!"));
         }
         else
@@ -51,9 +49,6 @@ void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now)
         // Serial.print(filename);
         snprintf(filename, 13, "%02d_%02d_%02d.csv", (Year -2000), Month, Day);
         File file = SD.open(filename, FILE_WRITE);
-
-        // File file = SD.open("2025.05.15.csv", FILE_WRITE);
-        // File file = SD.open(filename, FILE_WRITE);
 
         // if the file is not initialised yet -> titles for csv file (if init == false)
         if (!this->init)
