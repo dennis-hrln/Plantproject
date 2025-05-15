@@ -7,8 +7,10 @@ Arduino pin wiring:
 *  - Pin 6: RTC DAT pin (output)
 *  - Pin 7: Motor pin (output)
 
-*  - Pin 10: SD card MOSI pin (input?)
-*  - Pin 11: SD card CS pin (input?)
+
+
+*  - Pin 10: SD card CS pin (output)
+*  - Pin 11: SD card MOSI pin (input?)
 *  - Pin 12: SD card MISO pin (input?)
 *  - Pin 13: SD card CLK pin (input?)
 
@@ -35,7 +37,7 @@ Arduino pin wiring:
 #include "sd_card.h"
 
 // components - declare what coponents are used in the project
-bool sd_card_used = false; // does this project use a sd card?
+bool sd_card_used = true; // does this project use a sd card?
 
 float fps = 1; // miliseconds per frame 
 
@@ -78,18 +80,19 @@ void setup()
 {
 	// initialize serial communications at 9600 bps:
 	Serial.begin(9600);
-	SD.begin(Stirps.SD_card_pin);
-
-	lcd_screen.innit();
-
-
-	rtc_available = starting_up(&rtc);
 	// Set pinmodes
-	pinMode(Stirps.sensor_pin, INPUT);
-	pinMode(Stirps.motor_pin, OUTPUT);
-	pinMode(Stirps.SD_card_pin, OUTPUT);
+	pinMode(Stirps.get_sensor_pin(), INPUT);
+	pinMode(Stirps.get_motor_pin(), OUTPUT);
+	pinMode(Stirps.get_SD_card_pin(), OUTPUT);
 	pinMode(nextButtonPIN, INPUT_PULLUP);
 	pinMode(selectButtonPIN, INPUT_PULLUP);
+	
+	// SD.begin(Stirps.get_SD_card_pin());
+
+	lcd_screen.innit();
+	rtc_available = starting_up(&rtc);
+	// micro_sd.initialize_SD_card();
+	
 
 	attachInterrupt(digitalPinToInterrupt(nextButtonPIN), check_next_button, RISING);
 	attachInterrupt(digitalPinToInterrupt(selectButtonPIN), check_select_button, RISING);
@@ -105,7 +108,7 @@ void loop()
 	TimeStruct watering_time, time_now;	
 	
 
-	lcd_screen.screen_dimming(Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity);
+	lcd_screen.screen_dimming(Stirps.planttype, Stirps.get_humidity(), Stirps.optimal_humidity);
 	
 	//Stirps.write_to_pc(data_frequency, &Stirps);
 
@@ -137,7 +140,7 @@ void loop()
 	if (last_frame_time + (1000/fps) < millis())
 	{
 	lcd_screen.update_screen(
-		Stirps.planttype, Stirps.humidity, Stirps.optimal_humidity,
+		Stirps.planttype, Stirps.get_humidity(), Stirps.optimal_humidity,
 		watering_time.year, watering_time.month, watering_time.day,
 		watering_time.hour, watering_time.minute, time_now.year, time_now.month, time_now.day, time_now.hour, time_now.minute, time_now.second
 		);
