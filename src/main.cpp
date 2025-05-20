@@ -36,14 +36,32 @@ Arduino pin wiring:
 #include "buttons.h"
 #include "sd_card.h"
 
-// components - declare what coponents are used in the project
+
+//changable variables
+///////////////////////////////
+plant thisplant = Stirps; // what plant is used
+int wet_sensor_value = 186;
+int dry_sensor_value = 505;
+float fps = 1; // frames per second 
+int Water_amount = 20; // amount of water 
+//hardware (pin numbers)
+const byte nextButtonPIN = 2;
+const byte selectButtonPIN = 3;
+const byte water_pump_pin = 7;
+const byte sd_card_pin = 10;
+const byte humidity_sensor_pin = A0;
 bool sd_card_used = true; // does this project use a sd card?
 
-float fps = 1; // miliseconds per frame 
 
+// int dry_sensor_value = 380;
+////////////////////////////////
+
+
+
+//Hardware Initialisation
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-Ds1302 rtc(4, 5, 6); // Pin 4 is the rst pin, pin 6 is the DAT pin, pin  5 is the clock pin CLK pin
-SD_Card micro_sd(10, 5000); // SD card pin 10, 5s delay for the SD card
+Ds1302 rtc(4, 5, 6);
+SD_Card micro_sd(sd_card_pin, 5000);
 // RTC_DS3231 rtc;
 // byte rtc;		//debug or rtc is not existant
 
@@ -51,16 +69,14 @@ SD_Card micro_sd(10, 5000); // SD card pin 10, 5s delay for the SD card
 screen lcd_screen(&lcd);
 bool humidity_control(plant *);
 void calibration();
-
 volatile bool next_button_pressed = false;
 volatile bool select_button_pressed = false;
-const byte nextButtonPIN = 2;
-const byte selectButtonPIN = 3;
-bool dry_calibrated = true;
-bool wet_calibrated = true;
 bool rtc_available;
 unsigned long last_frame_time;
 
+// use dry and wet values from this code for initialisation?
+bool dry_calibrated = true;
+bool wet_calibrated = true;
 
 void check_next_button()
 {
@@ -73,21 +89,21 @@ void check_select_button()
 	select_button_pressed = true;
 }
 
-int wet_sensor_value = 186;
-int dry_sensor_value = 380;
+
+
 
 void setup()
 {
 	// initialize serial communications at 9600 bps:
 	Serial.begin(9600);
 	// Set pinmodes
-	pinMode(Stirps.get_sensor_pin(), INPUT);
-	pinMode(Stirps.get_motor_pin(), OUTPUT);
-	pinMode(Stirps.get_SD_card_pin(), OUTPUT);
+	pinMode(humidity_sensor_pin, INPUT);
+	pinMode(water_pump_pin, OUTPUT);
+	pinMode(sd_card_pin, OUTPUT);
 	pinMode(nextButtonPIN, INPUT_PULLUP);
 	pinMode(selectButtonPIN, INPUT_PULLUP);
-	
-	// SD.begin(Stirps.get_SD_card_pin());
+
+	// SD.begin(sd_card_pin);
 
 	lcd_screen.innit();
 	rtc_available = starting_up(&rtc);
@@ -97,7 +113,7 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(nextButtonPIN), check_next_button, RISING);
 	attachInterrupt(digitalPinToInterrupt(selectButtonPIN), check_select_button, RISING);
 	// to calibrate the sensor remove the two int in the function
-	Stirps.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
+	thisplant.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
 
 }
 
@@ -108,12 +124,12 @@ void loop()
 	TimeStruct watering_time, time_now;	
 	
 
-	lcd_screen.screen_dimming(Stirps.planttype, Stirps.get_humidity(), Stirps.optimal_humidity);
+	lcd_screen.screen_dimming(thisplant.planttype, thisplant.get_humidity(), thisplant.optimal_humidity);
 	
-	//Stirps.write_to_pc(data_frequency, &Stirps);
+	//thisplant.write_to_pc(data_frequency, &thisplant);
 
 	// check if the plant needs watering and water it if needed; get watering time as dt
-	was_watered = humidity_control(&Stirps);
+	was_watered = humidity_control(&thisplant);
 	if (was_watered == true)
 	{
 		get_time(&rtc, &watering_time, rtc_available);
@@ -135,12 +151,12 @@ void loop()
 	get_time(&rtc, &time_now, rtc_available);
 	// update the screen with the current time and date
 	if (sd_card_used == true){ // && (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
-		micro_sd.write_to_SDcard(&Stirps, &time_now);
+		micro_sd.write_to_SDcard(&thisplant, &time_now, sd_card_pin);
 	}
 	if (last_frame_time + (1000/fps) < millis())
 	{
 	lcd_screen.update_screen(
-		Stirps.planttype, Stirps.get_humidity(), Stirps.optimal_humidity,
+		thisplant.planttype, thisplant.get_humidity(), thisplant.optimal_humidity,
 		watering_time.year, watering_time.month, watering_time.day,
 		watering_time.hour, watering_time.minute, time_now.year, time_now.month, time_now.day, time_now.hour, time_now.minute, time_now.second
 		);
@@ -156,10 +172,10 @@ bool humidity_control(plant *Pflanze)
 	//if plant was watered
 	bool was_watered = false;
 	// check if the plant needs watering
-	float h_diff = Pflanze->measure_humidity();
+	float h_diff = Pflanze->measure_humidity(humidity_sensor_pin);
 	if (h_diff > 0)
 	{
-		Pflanze->watering(h_diff, 10);
+		Pflanze->watering(h_diff, water_pump_pin, Water_amount);
 		was_watered = true;
 	}
 	return was_watered;
@@ -175,7 +191,7 @@ void calibration()
 		lcd_screen.lcd->print("Dry calibration");
 		lcd_screen.lcd->setCursor(0, 1);
 		lcd_screen.lcd->print("wait 30s");
-		int new_cal_value = Stirps.humidity_sensor_dry_calibration();
+		int new_cal_value = thisplant.humidity_sensor_dry_calibration(humidity_sensor_pin);
 		dry_calibrated = true;
 		lcd_screen.lcd->clear();
 		lcd_screen.calibrated_value_disp(true, new_cal_value);
@@ -187,7 +203,7 @@ void calibration()
 		lcd_screen.lcd->print("Wet calibration");
 		lcd_screen.lcd->setCursor(0, 1);
 		lcd_screen.lcd->print("wait 30s");
-		int new_cal_value = Stirps.humidity_sensor_wet_calibration();
+		int new_cal_value = thisplant.humidity_sensor_wet_calibration(humidity_sensor_pin);
 		wet_calibrated = true;
 		lcd_screen.lcd->clear();
 		lcd_screen.calibrated_value_disp(false, new_cal_value);
