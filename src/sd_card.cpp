@@ -8,11 +8,11 @@ SD_Card::SD_Card(int pin, unsigned long data_write_frequency)
     this->last_data_write = 0;                   // initialize the last data write time to 0
 }
 
-void SD_Card::initialize_SD_card()
+void SD_Card::initialize_SD_card(int sd_card_pin)
 {
     static bool initialized;
     if (!initialized) {
-        if(SD.begin(this->SD_card_pin)){
+        if(SD.begin(sd_card_pin)){
             initialized = true;
             Serial.println(F("SD Card initialized!"));
         }
@@ -23,7 +23,7 @@ void SD_Card::initialize_SD_card()
         }
     }
 }
-void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now)
+void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now, int sd_card_pin)
 {
     
     
@@ -41,29 +41,33 @@ void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now)
         {
             Year += 2000;
         }
-
+        File file;
         // open file for writing 24.09.24
         //filename in sd module max 12 chars
         // snprintf(filename, sizeof(filename), "%s_%04d.%02d.%02d_data.csv", plant_instance->planttype,
         //          Year, Month, Day);
         // Serial.print(filename);
-        snprintf(filename, 13, "%02d_%02d_%02d.csv", (Year -2000), Month, Day);
-        File file = SD.open(filename, FILE_WRITE);
+        
 
         // if the file is not initialised yet -> titles for csv file (if init == false)
         if (!this->init)
         {
+            snprintf(filename, 13, "%02d_%02d_%02d.txt", (Year -2000), Month, Day);
+            file = SD.open(filename, FILE_WRITE);
             file.print(data_names);
             file.println(); // Add newline after headers
             init = true;
             file.close();
+
         }
 
         else
         {
-
-            // if (file)
-            // {
+            
+            Serial.print(F("testing else"));
+            Serial.println(filename);
+            file = SD.open(filename, FILE_WRITE);
+           
                 // Convert bool to string representation
             const char *watered_str = plant_instance->watered ? "true" : "false";
 
@@ -92,7 +96,7 @@ void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now)
             this->last_data_write = millis();
             plant_instance->watered = false; // reset the watered variable to false after writing to the file
             file.close(); // close the file after writing to it
-            // }
+            Serial.print(F("Data written to file: "));
         }    
     }
     

@@ -8,8 +8,8 @@ class SD_Card
 {
 public:
     SD_Card(int arduino_SD_card_pin, unsigned long data_write_frequency = 60000);
-    void initialize_SD_card();
-    void write_to_SDcard(plant* plant_instance = nullptr, TimeStruct* now = nullptr);
+    void initialize_SD_card(int sd_card_pin = 10);
+    void write_to_SDcard(plant* plant_instance = nullptr, TimeStruct* now = nullptr, int sd_card_pin = 10);
     void write_to_pc(unsigned long measurment_frequency = 2e4 , plant* plant_instance = nullptr);
     unsigned long data_frequency; // frequency of the data write in ms
     unsigned long last_data_write;

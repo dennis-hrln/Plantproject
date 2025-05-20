@@ -7,24 +7,23 @@
 class plant
 {
 public:
-    plant(const char* planttype, int optimal_humidity = 25, const int sensor_pin = 0, const int motor_pin = LED_BUILTIN, const int SD_card_pin = 0);
+    plant(const char* planttype, int optimal_humidity = 25);
 
     const char* planttype;
     int optimal_humidity;
     
     
     bool watered = false;
-    
-    int humidity_sensor_dry_calibration();
-    int humidity_sensor_wet_calibration();
+    //calibrate the humidity sensor to get the coorect dry value
+    int humidity_sensor_dry_calibration(int sensor_pin = A0);
+    //calibrate the humidity sensor to get the coorect wet value
+    int humidity_sensor_wet_calibration(int sensor_pin = A0);
     void calibrate_humidity_sensor(int, int);
-    void watering(float, int  water_amount = 50);
-    int measure_humidity();
+    void watering(float, int motor_pin = 7, int water_amount = 50);
+    int measure_humidity(int sensor_pin = A0);
     //getter and setter functions (so vars can be private)
     int get_humidity();
-    int get_sensor_pin();
-    int get_motor_pin();
-    int get_SD_card_pin();
+
     
 
     
