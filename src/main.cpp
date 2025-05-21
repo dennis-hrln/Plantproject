@@ -73,7 +73,7 @@ volatile bool next_button_pressed = false;
 volatile bool select_button_pressed = false;
 bool rtc_available;
 unsigned long last_frame_time;
-
+TimeStruct watering_time, time_now;	
 // use dry and wet values from this code for initialisation?
 bool dry_calibrated = true;
 bool wet_calibrated = true;
@@ -108,21 +108,19 @@ void setup()
 	lcd_screen.innit();
 	rtc_available = starting_up(&rtc);
 	// micro_sd.initialize_SD_card();
-	
+	//set first watered to 0
+	watering_time = {0, 0, 0, 0, 0, 0};
 
 	attachInterrupt(digitalPinToInterrupt(nextButtonPIN), check_next_button, RISING);
 	attachInterrupt(digitalPinToInterrupt(selectButtonPIN), check_select_button, RISING);
 	// to calibrate the sensor remove the two int in the function
 	thisplant.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
-
 }
 
 void loop()
 {
 	
-	bool was_watered = false;
-	TimeStruct watering_time, time_now;	
-	
+	bool was_watered = false;	
 
 	lcd_screen.screen_dimming(thisplant.planttype, thisplant.get_humidity(), thisplant.optimal_humidity);
 	
@@ -184,6 +182,22 @@ bool humidity_control(plant *Pflanze)
 
 void calibration()
 {
+	if (lcd_screen.calibrate == false){
+		return;
+	}
+	lcd_screen.lcd->clear();
+	unsigned long helper_time = millis();
+	
+	while((helper_time + 15000 > millis()) && lcd_screen.confirm_calibration == false){
+		lcd_screen.lcd->setCursor(0, 0);
+		lcd_screen.lcd->print(F("Confirm cal."));
+		if (!lcd_screen.calibrate){return;}
+	//wait until either 15s pass or calibration is confirmed or calibration is cancelled via next button
+		delay(10);
+	}
+	lcd_screen.confirm_calibration = false;
+	
+
 	if (dry_calibrated == false)
 	{
 		lcd_screen.lcd->clear();
@@ -208,5 +222,6 @@ void calibration()
 		lcd_screen.lcd->clear();
 		lcd_screen.calibrated_value_disp(false, new_cal_value);
 	}
+	lcd_screen.calibrate = false;
 }
 

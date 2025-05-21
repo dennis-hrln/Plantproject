@@ -51,7 +51,8 @@ public:
 	unsigned long last_disp_change = 0;
 	bool lit = true;
 	bool blinking; // checks if the cursor is blinking
-
+	bool confirm_calibration = false;
+	bool calibrate = false;
 private:
 bool avoid_negative_humidity = true; //turn off for testing
 bool check_for_change(); // check if the display has changed - does not check for changing content (like date and time) only for disp changes (home->time, etc.)

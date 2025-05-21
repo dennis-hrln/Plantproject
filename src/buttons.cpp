@@ -24,13 +24,34 @@ void select_button()
             case screen::HOME:
                 lcd_screen.lit = false;
                 // Startup case does not need to be handled here - only here for clarity
+                break;
             case screen::STARTUP:
                 break;
             case screen::DRY_CALIBRATION:
-                dry_calibrated = false;
+            
+            if (lcd_screen.calibrate == true){
+                if(lcd_screen.confirm_calibration == true)
+                {
+                    dry_calibrated = false;
+
+                }
+                lcd_screen.confirm_calibration = true;
                 break;
-            case screen::WET_CALIBRATION:
-                wet_calibrated = false;
+            }
+            lcd_screen.calibrate = true;
+            break;
+
+            case screen::WET_CALIBRATION: 
+                if (lcd_screen.calibrate == true){
+                    if(lcd_screen.confirm_calibration == true)
+                    {
+                        wet_calibrated = false;
+                    
+                    }
+                    lcd_screen.confirm_calibration = true;
+                    break;
+                }
+                lcd_screen.calibrate = true;
                 break;
             case screen::WATER_DISP:
                 reset_time(&rtc);
@@ -111,10 +132,16 @@ void next_button()
 				lcd_screen.disp_status = screen::DRY_CALIBRATION;
 				break;
 			case screen::DRY_CALIBRATION:
+            if (lcd_screen.calibrate == true){
+                lcd_screen.calibrate = false;
+            }
 				lcd_screen.disp_status = screen::WET_CALIBRATION;
-				break;
+                break;
 			case screen::WET_CALIBRATION:
-				lcd_screen.disp_status = screen::DATE_DISP;
+				if (lcd_screen.calibrate == true){
+                    lcd_screen.calibrate = false;
+                }
+                lcd_screen.disp_status = screen::DATE_DISP;
 				break;
 			case screen::DATE_DISP:
                 
