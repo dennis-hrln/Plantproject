@@ -41,7 +41,11 @@ void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now, int sd_car
         {
             Year += 2000;
         }
-        File file;
+        snprintf(filename, 13, "%02d_%02d_%02d.txt", (Year -2000), Month, Day);
+        File file = SD.open(filename, FILE_WRITE);
+        Serial.println(filename);
+        file.print(F("test")); //delete test, but keep println for newline between values
+        file.println();
         // open file for writing 24.09.24
         //filename in sd module max 12 chars
         // snprintf(filename, sizeof(filename), "%s_%04d.%02d.%02d_data.csv", plant_instance->planttype,
@@ -52,22 +56,13 @@ void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now, int sd_car
         // if the file is not initialised yet -> titles for csv file (if init == false)
         if (!this->init)
         {
-            snprintf(filename, 13, "%02d_%02d_%02d.txt", (Year -2000), Month, Day);
-            file = SD.open(filename, FILE_WRITE);
-            file.print(data_names);
-            file.println(); // Add newline after headers
-            init = true;
-            file.close();
 
+            file.print(data_names);
+            this->init = true;
         }
 
         else
-        {
-            
-            Serial.print(F("testing else"));
-            Serial.println(filename);
-            file = SD.open(filename, FILE_WRITE);
-           
+        {           
                 // Convert bool to string representation
             const char *watered_str = plant_instance->watered ? "true" : "false";
 
@@ -92,13 +87,12 @@ void SD_Card::write_to_SDcard(plant *plant_instance, TimeStruct *now, int sd_car
             file.print(plant_instance->get_humidity());
             file.print(F(", "));
             file.print(watered_str);
-            file.println(); // Add newline after data
             this->last_data_write = millis();
             plant_instance->watered = false; // reset the watered variable to false after writing to the file
-            file.close(); // close the file after writing to it
             Serial.print(F("Data written to file: "));
         }    
     }
+    file.close(); // close the file after writing to it
     
 }
 
