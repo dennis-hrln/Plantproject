@@ -68,7 +68,6 @@ SD_Card micro_sd(sd_card_pin, 5000);
 
 screen lcd_screen(&lcd);
 bool humidity_control(plant *);
-void calibration();
 volatile bool next_button_pressed = false;
 volatile bool select_button_pressed = false;
 bool rtc_available;
@@ -132,7 +131,6 @@ void loop()
 	{
 		get_time(&rtc, &watering_time, rtc_available);
 	}
-	calibration();
 	if (next_button_pressed)
 	{
 		next_button();
@@ -142,7 +140,7 @@ void loop()
 	if (select_button_pressed)
 	{
 		lcd_screen.blinking = false; //turn off blinking
-		select_button(); //ensure that the screen is updated after the button is pressed
+		select_button(&thisplant, humidity_sensor_pin); //ensure that the screen is updated after the button is pressed
 		last_frame_time = 0;
 	}
 	// check if the RTC is available and get the current time
@@ -180,48 +178,4 @@ bool humidity_control(plant *Pflanze)
 
 }
 
-void calibration()
-{
-	if (lcd_screen.calibrate == false){
-		return;
-	}
-	lcd_screen.lcd->clear();
-	unsigned long helper_time = millis();
-	
-	while((helper_time + 15000 > millis()) && lcd_screen.confirm_calibration == false){
-		lcd_screen.lcd->setCursor(0, 0);
-		lcd_screen.lcd->print(F("Confirm cal."));
-		if (!lcd_screen.calibrate){return;}
-	//wait until either 15s pass or calibration is confirmed or calibration is cancelled via next button
-		delay(10);
-	}
-	lcd_screen.confirm_calibration = false;
-	
-
-	if (dry_calibrated == false)
-	{
-		lcd_screen.lcd->clear();
-		lcd_screen.lcd->setCursor(0, 0);
-		lcd_screen.lcd->print("Dry calibration");
-		lcd_screen.lcd->setCursor(0, 1);
-		lcd_screen.lcd->print("wait 30s");
-		int new_cal_value = thisplant.humidity_sensor_dry_calibration(humidity_sensor_pin);
-		dry_calibrated = true;
-		lcd_screen.lcd->clear();
-		lcd_screen.calibrated_value_disp(true, new_cal_value);
-	}
-	if (wet_calibrated == false)
-	{
-		lcd_screen.lcd->clear();
-		lcd_screen.lcd->setCursor(0, 0);
-		lcd_screen.lcd->print("Wet calibration");
-		lcd_screen.lcd->setCursor(0, 1);
-		lcd_screen.lcd->print("wait 30s");
-		int new_cal_value = thisplant.humidity_sensor_wet_calibration(humidity_sensor_pin);
-		wet_calibrated = true;
-		lcd_screen.lcd->clear();
-		lcd_screen.calibrated_value_disp(false, new_cal_value);
-	}
-	lcd_screen.calibrate = false;
-}
 

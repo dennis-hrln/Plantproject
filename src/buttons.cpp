@@ -11,7 +11,7 @@ extern volatile bool select_button_pressed;
 extern screen lcd_screen;
 
 
-void select_button()
+void select_button(plant *Pflanze, int humidity_sensor_pin)
 {
 	lcd_screen.last_disp_action = millis();
     lcd_screen.lit = true;
@@ -28,30 +28,24 @@ void select_button()
             case screen::STARTUP:
                 break;
             case screen::DRY_CALIBRATION:
-            
-            if (lcd_screen.calibrate == true){
-                if(lcd_screen.confirm_calibration == true)
-                {
-                    dry_calibrated = false;
-
-                }
-                lcd_screen.confirm_calibration = true;
+                lcd_screen.lcd->clear();
+		        lcd_screen.lcd->setCursor(0, 0);
+		        lcd_screen.lcd->print("Dry calibration");
+		        lcd_screen.lcd->setCursor(0, 1);
+		        lcd_screen.lcd->print("wait 30s");
+		        int new_cal_value = Pflanze->humidity_sensor_dry_calibration(humidity_sensor_pin);
+		        lcd_screen.lcd->clear();
+		        lcd_screen.calibrated_value_disp(true, new_cal_value);
                 break;
-            }
-            lcd_screen.calibrate = true;
-            break;
-
-            case screen::WET_CALIBRATION: 
-                if (lcd_screen.calibrate == true){
-                    if(lcd_screen.confirm_calibration == true)
-                    {
-                        wet_calibrated = false;
-                    
-                    }
-                    lcd_screen.confirm_calibration = true;
-                    break;
-                }
-                lcd_screen.calibrate = true;
+            case screen::WET_CALIBRATION:
+                lcd_screen.lcd->clear();
+		        lcd_screen.lcd->setCursor(0, 0);
+		        lcd_screen.lcd->print("Wet calibration");
+		        lcd_screen.lcd->setCursor(0, 1);
+		        lcd_screen.lcd->print("wait 30s");
+		        int new_value = Pflanze->humidity_sensor_wet_calibration(humidity_sensor_pin);
+		        lcd_screen.lcd->clear();
+		        lcd_screen.calibrated_value_disp(false, new_value);
                 break;
             case screen::WATER_DISP:
                 reset_time(&rtc);
