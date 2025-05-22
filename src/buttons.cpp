@@ -96,7 +96,7 @@ void select_button(plant *Pflanze, int humidity_sensor_pin)
                 lcd_screen.calibrated_value_disp(false, new_value);
                 break;
             }
-            }
+        }
 	}
     if (lcd_screen.lit == false)
     {
