@@ -92,6 +92,7 @@ check if the plant needs watering
 bool plant::humidity_control(int sensor_pin, int motor_pin, int water_amount){
     int h_diff = measure_humidity(sensor_pin);
     bool was_watered;
+    was_watered = false;
     if ((h_diff > 0) && (millis() - this->last_watered > 20000)){
         watering(motor_pin, water_amount);
         was_watered = true;

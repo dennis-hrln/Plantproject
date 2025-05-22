@@ -120,14 +120,20 @@ void setup()
 
 void loop()
 {
-	
 	bool was_watered = false;
-	lcd_screen.screen_dimming(thisplant.planttype, thisplant.get_humidity(), thisplant.optimal_humidity);
+	was_watered = thisplant.humidity_control(humidity_sensor_pin, water_pump_pin, Water_amount);
+	//error handling should Do nothing but Idk
+	//idk why it is necessary - next & select button count as pushed after watering - maybe hardware??
+	if(was_watered){	
+		next_button_pressed = false;
+		select_button_pressed = false;
+	}
+		lcd_screen.screen_dimming(thisplant.planttype, thisplant.get_humidity(), thisplant.optimal_humidity);
 	
 	//thisplant.write_to_pc(data_frequency, &thisplant);
 
 	// check if the plant needs watering and water it if needed; get watering time as dt
-	was_watered = thisplant.humidity_control(humidity_sensor_pin, water_pump_pin, Water_amount);
+	
 	if (was_watered == true)
 	{
 		get_time(&rtc, &watering_time, rtc_available);
@@ -159,9 +165,6 @@ void loop()
 		);
 		last_frame_time = millis();
 	}
-	
-	
-	
 }
 
 
