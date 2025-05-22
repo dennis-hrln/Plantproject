@@ -19,10 +19,11 @@ public:
     //calibrate the humidity sensor to get the coorect wet value
     int humidity_sensor_wet_calibration(int sensor_pin = A0);
     void calibrate_humidity_sensor(int, int);
-    void watering(float, int motor_pin = 7, int water_amount = 50);
+    void watering(int motor_pin = 7, int water_amount = 50);
     int measure_humidity(int sensor_pin = A0);
     //getter and setter functions (so vars can be private)
     int get_humidity();
+    bool humidity_control(int humidity_sensor_pin = A0, int water_pump_pin = 7, int water_amount = 50);
 
     
 
@@ -36,7 +37,6 @@ private:
     int humidity;
     int sensor_wet;
     int sensor_dry;
-    int humidity_difference;
 };
 
 #endif // PLANT_H
