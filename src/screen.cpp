@@ -76,10 +76,13 @@ void screen::home_disp(const char *plantname, int humidity, int optimal_humidity
         {
             lcd->print(F("  "));
         }
+        else if (humidity > 99)
+        {}
         else if (humidity > 9)
         {
             lcd->print(F(" "));
         }
+        
         lcd->print(humidity);
         hum_last_refresh = millis();
     }
@@ -89,12 +92,10 @@ void screen::home_disp(const char *plantname, int humidity, int optimal_humidity
 };
 
 void screen::water_disp(unsigned int year, unsigned int month, unsigned int day, unsigned int hour, unsigned int minute)
+//show the last time the plant was watered
 {
     //logic for last watered into months days hours mins seconds
-    this->disp_status = WATER_DISP;
-    
-
-    
+    check_for_change();
     if (this->lit == true)
     {
         lcd->backlight();
