@@ -24,27 +24,8 @@ void select_button(plant *Pflanze, int humidity_sensor_pin)
             case screen::HOME:
                 lcd_screen.lit = false;
                 // Startup case does not need to be handled here - only here for clarity
+            break;
             case screen::STARTUP:
-                break;
-            case screen::DRY_CALIBRATION:
-                lcd_screen.lcd->clear();
-		        lcd_screen.lcd->setCursor(0, 0);
-		        lcd_screen.lcd->print("Dry calibration");
-		        lcd_screen.lcd->setCursor(0, 1);
-		        lcd_screen.lcd->print("wait 30s");
-		        int new_cal_value = Pflanze->humidity_sensor_dry_calibration(humidity_sensor_pin);
-		        lcd_screen.lcd->clear();
-		        lcd_screen.calibrated_value_disp(true, new_cal_value);
-                break;
-            case screen::WET_CALIBRATION:
-                lcd_screen.lcd->clear();
-		        lcd_screen.lcd->setCursor(0, 0);
-		        lcd_screen.lcd->print("Wet calibration");
-		        lcd_screen.lcd->setCursor(0, 1);
-		        lcd_screen.lcd->print("wait 30s");
-		        int new_value = Pflanze->humidity_sensor_wet_calibration(humidity_sensor_pin);
-		        lcd_screen.lcd->clear();
-		        lcd_screen.calibrated_value_disp(false, new_value);
                 break;
             case screen::WATER_DISP:
                 reset_time(&rtc);
@@ -56,6 +37,7 @@ void select_button(plant *Pflanze, int humidity_sensor_pin)
                         lcd_screen.edit_time_stat = screen::EDIT_YEAR;
                         break;
                     case screen::EDIT_YEAR:
+                        Serial.print("adjust year");
                         adjust_year(&rtc);
                         break;
                     case screen::EDIT_MONTH:
@@ -65,7 +47,8 @@ void select_button(plant *Pflanze, int humidity_sensor_pin)
                         adjust_day(&rtc);
                         break;
                     case screen::CHANGED:
-                        break;  
+                        // Handle CHANGED state if needed, or leave empty to suppress warning
+                        break;
                     default:
                         break;
                 }
@@ -89,7 +72,31 @@ void select_button(plant *Pflanze, int humidity_sensor_pin)
                         break;
                 }
                 break;
-        }
+            case screen::DRY_CALIBRATION:
+            {
+                lcd_screen.lcd->clear();
+                lcd_screen.lcd->setCursor(0, 0);
+                lcd_screen.lcd->print("Dry calibration");
+                lcd_screen.lcd->setCursor(0, 1);
+                lcd_screen.lcd->print("wait 30s");
+                int new_cal_value = Pflanze->humidity_sensor_dry_calibration(humidity_sensor_pin);
+                lcd_screen.lcd->clear();
+                lcd_screen.calibrated_value_disp(true, new_cal_value);
+                break;
+            }
+            case screen::WET_CALIBRATION:
+            {
+                lcd_screen.lcd->clear();
+                lcd_screen.lcd->setCursor(0, 0);
+                lcd_screen.lcd->print("Wet calibration");
+                lcd_screen.lcd->setCursor(0, 1);
+                lcd_screen.lcd->print("wait 30s");
+                int new_value = Pflanze->humidity_sensor_wet_calibration(humidity_sensor_pin);
+                lcd_screen.lcd->clear();
+                lcd_screen.calibrated_value_disp(false, new_value);
+                break;
+            }
+            }
 	}
     if (lcd_screen.lit == false)
     {
@@ -163,7 +170,7 @@ void next_button()
                         lcd_screen.edit_time_stat = screen::EDIT_SECOND;
                         break;
                     case screen::EDIT_SECOND:
-                        lcd_screen.edit_time_stat = screen::EDIT_YEAR;
+                        lcd_screen.edit_time_stat = screen::NO_EDIT;
                         lcd_screen.disp_status = screen::HOME;
                         break;
                     default:
