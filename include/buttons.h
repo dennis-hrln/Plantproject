@@ -8,6 +8,6 @@
 #include "clock_rtc.h"
 #include "pflanzenliste.h"
 void next_button();
-void select_button();
+void select_button(plant *, int);
 
 #endif // BUTTONS_H
