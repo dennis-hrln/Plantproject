@@ -63,26 +63,21 @@ int plant::measure_humidity(int sensor_pin)
 {
     int humidity_sensor_Value = analogRead(sensor_pin);
     this->humidity = map(humidity_sensor_Value, this->sensor_wet, this->sensor_dry, 100, 0);
-    humidity_difference = this->optimal_humidity - this->humidity;
+    int humidity_difference = this->optimal_humidity - this->humidity;
 
     return humidity_difference;
 };
 
-void plant::watering(float humidity_difference, int motor_pin, int water_amount) // water_amount is an example value
+void plant::watering(int motor_pin, int water_amount) // water_amount is an example value
 {
-    if (humidity_difference > 0)
-    {
         if (millis() - this->last_watered > 20000)
         {
             digitalWrite(motor_pin, HIGH);
             delay(100 * water_amount);
             digitalWrite(motor_pin, LOW);
             this->last_watered = millis();
-            this->watered = true;
-            //write_to_pc();
-            this->watered = false;
+            Serial.print("watered");
         }
-    }
 };
 
 // getter and setter functions
@@ -91,4 +86,16 @@ int plant::get_humidity()
     return this->humidity;
 };
 
+/*
+check if the plant needs watering 
+*/
+bool plant::humidity_control(int sensor_pin, int motor_pin, int water_amount){
+    int h_diff = measure_humidity(sensor_pin);
+    bool was_watered;
+    if ((h_diff > 0) && (millis() - this->last_watered > 20000)){
+        watering(motor_pin, water_amount);
+        was_watered = true;
+    }
+    return was_watered;
+}
 
