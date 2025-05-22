@@ -50,7 +50,7 @@ const byte selectButtonPIN = 3;
 const byte water_pump_pin = 7;
 const byte sd_card_pin = 10;
 const byte humidity_sensor_pin = A0;
-bool sd_card_used = true; // does this project use a sd card?
+
 
 
 // int dry_sensor_value = 380;
@@ -71,8 +71,9 @@ bool humidity_control(plant *);
 volatile bool next_button_pressed = false;
 volatile bool select_button_pressed = false;
 bool rtc_available;
+bool sd_card_working; // does this project use a working sd card?
 unsigned long last_frame_time;
-
+TimeStruct watering_time, time_now;	
 // use dry and wet values from this code for initialisation?
 bool dry_calibrated = true;
 bool wet_calibrated = true;
@@ -106,8 +107,10 @@ void setup()
 
 	lcd_screen.innit();
 	rtc_available = starting_up(&rtc);
-	// micro_sd.initialize_SD_card();
-	
+	watering_time = {0, 0, 0, 0, 0, 0};
+	sd_card_working = micro_sd.initialize_SD_card();
+	// if program crashes and reboots, turn motor off
+	digitalWrite(water_pump_pin, LOW);
 
 	attachInterrupt(digitalPinToInterrupt(nextButtonPIN), check_next_button, RISING);
 	attachInterrupt(digitalPinToInterrupt(selectButtonPIN), check_select_button, RISING);
@@ -120,15 +123,12 @@ void loop()
 {
 	
 	bool was_watered = false;
-	TimeStruct watering_time, time_now;	
-	
-
 	lcd_screen.screen_dimming(thisplant.planttype, thisplant.get_humidity(), thisplant.optimal_humidity);
 	
 	//thisplant.write_to_pc(data_frequency, &thisplant);
 
 	// check if the plant needs watering and water it if needed; get watering time as dt
-	was_watered = humidity_control(&thisplant);
+	was_watered = thisplant.humidity_control(humidity_sensor_pin, water_pump_pin, Water_amount);
 	if (was_watered == true)
 	{
 		get_time(&rtc, &watering_time, rtc_available);
@@ -148,8 +148,8 @@ void loop()
 	// check if the RTC is available and get the current time
 	get_time(&rtc, &time_now, rtc_available);
 	// update the screen with the current time and date
-	if (sd_card_used == true){ // && (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
-		micro_sd.write_to_SDcard(&thisplant, &time_now, sd_card_pin);
+	if (sd_card_working == true){ // && (millis() - micro_sd.last_data_write > micro_sd.data_frequency && millis()> 5000)
+		micro_sd.write_to_SDcard(&thisplant, &time_now);
 	}
 	if (last_frame_time + (1000/fps) < millis())
 	{
@@ -165,19 +165,6 @@ void loop()
 	
 }
 
-bool humidity_control(plant *Pflanze)
-{
-	//if plant was watered
-	bool was_watered = false;
-	// check if the plant needs watering
-	float h_diff = Pflanze->measure_humidity(humidity_sensor_pin);
-	if (h_diff > 0)
-	{
-		Pflanze->watering(h_diff, water_pump_pin, Water_amount);
-		was_watered = true;
-	}
-	return was_watered;
 
-}
 
 
