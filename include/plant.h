@@ -23,12 +23,7 @@ public:
     int measure_humidity(int sensor_pin = A0);
     //getter and setter functions (so vars can be private)
     int get_humidity();
-    bool humidity_control(int humidity_sensor_pin = A0, int water_pump_pin = 7, int water_amount = 50);
-
-    
-
-    
-    
+    bool humidity_control(int humidity_sensor_pin = A0, int water_pump_pin = 7, int water_amount = 50, int time_between_watering = 35000);
     unsigned long last_watered = 0;
 private:
     int sensor_pin;
