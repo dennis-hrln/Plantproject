@@ -43,6 +43,7 @@ plant thisplant = Stirps; // what plant is used
 int wet_sensor_value = 186;
 int dry_sensor_value = 505;
 float fps = 1; // frames per second 
+int time_between_watering = 5000;
 int Water_amount = 20; // amount of water 
 //hardware (pin numbers)
 const byte nextButtonPIN = 2;
@@ -121,7 +122,7 @@ void setup()
 void loop()
 {
 	bool was_watered = false;
-	was_watered = thisplant.humidity_control(humidity_sensor_pin, water_pump_pin, Water_amount);
+	was_watered = thisplant.humidity_control(humidity_sensor_pin, water_pump_pin, Water_amount, time_between_watering);
 	//error handling should Do nothing but Idk
 	//idk why it is necessary - next & select button count as pushed after watering - maybe hardware??
 	if(was_watered){	
