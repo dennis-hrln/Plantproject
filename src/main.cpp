@@ -43,8 +43,8 @@ plant thisplant = Stirps; // what plant is used
 int wet_sensor_value = 186;
 int dry_sensor_value = 505;
 float fps = 1; // frames per second 
-int time_between_watering = 5000;
-int Water_amount = 20; // amount of water 
+int time_between_watering = 1000 * 60; // (1000) * time in seconds
+int Water_amount = 25; // amount of water 
 //hardware (pin numbers)
 const byte nextButtonPIN = 2;
 const byte selectButtonPIN = 3;
