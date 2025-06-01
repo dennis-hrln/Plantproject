@@ -106,7 +106,12 @@ void screen::water_disp(unsigned int year, unsigned int month, unsigned int day,
     lcd->print(day);
     lcd->print(F("."));
     lcd->print(month);
-    lcd->print(F(".20"));
+    if (year == 0){
+        lcd->print(F("."));
+    }
+    else{
+        lcd->print(F(".20"));
+    }
     lcd->print(year);
     lcd->print(F(" "));
     lcd->print(hour);
