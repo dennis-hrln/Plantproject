@@ -117,7 +117,6 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(selectButtonPIN), check_select_button, RISING);
 	// to calibrate the sensor remove the two int in the function
 	thisplant.calibrate_humidity_sensor(wet_sensor_value, dry_sensor_value);
-
 }
 
 void loop()

@@ -132,10 +132,16 @@ void next_button()
 				lcd_screen.disp_status = screen::DRY_CALIBRATION;
 				break;
 			case screen::DRY_CALIBRATION:
+            if (lcd_screen.calibrate == true){
+                lcd_screen.calibrate = false;
+            }
 				lcd_screen.disp_status = screen::WET_CALIBRATION;
-				break;
+                break;
 			case screen::WET_CALIBRATION:
-				lcd_screen.disp_status = screen::DATE_DISP;
+				if (lcd_screen.calibrate == true){
+                    lcd_screen.calibrate = false;
+                }
+                lcd_screen.disp_status = screen::DATE_DISP;
 				break;
 			case screen::DATE_DISP:
                 
